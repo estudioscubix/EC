@@ -1,0 +1,904 @@
+<title>Cubix Doc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#FAF6F4; --surface:#FFFFFF; --surface-2:#F4ECEE; --surface-3:#EFE4E8;
+  --border:#E8DCDE; --border-strong:#DAC9CF;
+  --text:#241E22; --text-2:#756A6E; --text-3:#9A8E92;
+  --accent:#8E4E6E; --accent-2:#6E3A54; --accent-soft:#F5E6EE; --on-accent:#FFFFFF;
+  --good:#2F7D6B; --good-soft:#E4F1EC; --warn:#A9741B; --warn-soft:#F6EBD6; --crit:#BC4B4B; --crit-soft:#F7E3E3;
+  --shadow:0 1px 2px rgba(36,30,34,.04), 0 6px 20px rgba(36,30,34,.06);
+  --shadow-sm:0 1px 2px rgba(36,30,34,.06);
+  --radius:14px; --radius-sm:10px;
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Figtree",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+:root:not([data-theme="light"]){
+  @media (prefers-color-scheme: dark){
+    --bg:#161214; --surface:#201A1E; --surface-2:#2A2327; --surface-3:#332A2F;
+    --border:#382F34; --border-strong:#4A3E44;
+    --text:#F2E9ED; --text-2:#B7A6AE; --text-3:#877B81;
+    --accent:#DB92B4; --accent-2:#E7A9C4; --accent-soft:#33232C; --on-accent:#221319;
+    --good:#5EB79E; --good-soft:#20302C; --warn:#DDA85A; --warn-soft:#332A1C; --crit:#E28585; --crit-soft:#3A2626;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161214; --surface:#201A1E; --surface-2:#2A2327; --surface-3:#332A2F;
+  --border:#382F34; --border-strong:#4A3E44;
+  --text:#F2E9ED; --text-2:#B7A6AE; --text-3:#877B81;
+  --accent:#DB92B4; --accent-2:#E7A9C4; --accent-soft:#33232C; --on-accent:#221319;
+  --good:#5EB79E; --good-soft:#20302C; --warn:#DDA85A; --warn-soft:#332A1C; --crit:#E28585; --crit-soft:#3A2626;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;font-weight:600;line-height:1.15;text-wrap:balance}
+p{margin:0}
+a{color:var(--accent);text-decoration:none}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:15px}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- Shell ---------- */
+.app{display:flex;min-height:100vh}
+.side{position:sticky;top:0;align-self:flex-start;height:100vh;width:236px;flex:0 0 236px;background:var(--surface);border-right:1px solid var(--border);padding:22px 16px;display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 8px 18px}
+.brand .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(150deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:var(--on-accent);font-family:var(--serif);font-weight:700;font-size:18px;box-shadow:var(--shadow-sm)}
+.brand .n{font-family:var(--serif);font-weight:600;font-size:19px;letter-spacing:-.01em}
+.brand .s{font-size:11px;color:var(--text-3);letter-spacing:.04em;text-transform:uppercase}
+.nav{display:flex;flex-direction:column;gap:3px;margin-top:4px}
+.nav a{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:var(--radius-sm);color:var(--text-2);font-weight:500;transition:background .12s,color .12s}
+.nav a svg{width:18px;height:18px;flex:0 0 18px;stroke:currentColor;fill:none;stroke-width:1.7}
+.nav a:hover{background:var(--surface-2);color:var(--text)}
+.nav a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav a .badge{margin-left:auto;background:var(--crit);color:#fff;font-size:11px;font-weight:700;min-width:19px;height:19px;padding:0 5px;border-radius:10px;display:grid;place-items:center}
+.side .spacer{flex:1}
+.side .foot{font-size:11.5px;color:var(--text-3);padding:10px 8px 0;border-top:1px solid var(--border);line-height:1.4}
+.side .theme{display:flex;gap:6px;padding:6px 8px}
+.side .theme button{flex:1;padding:6px;border-radius:8px;border:1px solid var(--border);color:var(--text-2);font-size:12px}
+.side .theme button.on{background:var(--surface-2);color:var(--text);border-color:var(--border-strong)}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.wrap{width:100%;max-width:1060px;margin:0 auto;padding:28px 28px 72px}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.topbar .eyebrow{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:5px}
+.topbar h1{font-family:var(--serif);font-size:29px;letter-spacing:-.02em}
+.topbar .sub{color:var(--text-2);margin-top:6px;max-width:56ch}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:10px;font-weight:600;font-size:14px;border:1px solid transparent;transition:transform .06s,box-shadow .12s,background .12s;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.btn.pri{background:var(--accent);color:var(--on-accent);box-shadow:var(--shadow-sm)}
+.btn.pri:hover{background:var(--accent-2)}
+.btn.ghost{background:var(--surface);color:var(--text);border-color:var(--border-strong)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.sm{padding:6px 11px;font-size:13px;border-radius:8px}
+.btn.wa{background:#25D366;color:#0b2e17}
+.btn.wa:hover{background:#1fb457}
+.btn.danger{color:var(--crit);border-color:var(--crit)}
+.btn.danger:hover{background:var(--crit-soft)}
+.btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- Cards / grid ---------- */
+.grid{display:grid;gap:16px}
+.metrics{grid-template-columns:repeat(auto-fill,minmax(184px,1fr))}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:17px 18px;box-shadow:var(--shadow-sm)}
+.tile .lab{font-size:12.5px;color:var(--text-2);font-weight:500;display:flex;align-items:center;gap:7px}
+.tile .num{font-family:var(--serif);font-size:33px;font-weight:600;letter-spacing:-.02em;margin-top:9px;line-height:1}
+.tile .num small{font-size:16px;color:var(--text-2);font-weight:500;font-family:var(--sans)}
+.tile .hint{font-size:12px;color:var(--text-3);margin-top:7px}
+.tile .hint b{color:var(--text-2);font-weight:600}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+.panel .ph{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid var(--border)}
+.panel .ph h3{font-size:15.5px}
+.panel .pb{padding:16px 18px}
+.cols2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;align-items:start}
+
+/* ---------- Bars (procedimientos) ---------- */
+.bar{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;margin-bottom:11px}
+.bar:last-child{margin-bottom:0}
+.bar .bl{font-size:13.5px;font-weight:500}
+.bar .bv{font-size:13px;color:var(--text-2);font-weight:600}
+.bar .track{grid-column:1/-1;height:8px;background:var(--surface-2);border-radius:6px;overflow:hidden}
+.bar .fill{height:100%;background:linear-gradient(90deg,var(--accent-2),var(--accent));border-radius:6px}
+
+/* ---------- List / rows ---------- */
+.rowlist{display:flex;flex-direction:column}
+.rowlink{display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid var(--border);text-align:left;width:100%;transition:background .1s}
+.rowlink:last-child{border-bottom:none}
+.rowlink:hover{background:var(--surface-2)}
+.avatar{width:40px;height:40px;flex:0 0 40px;border-radius:11px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:15px;font-family:var(--serif)}
+.rowlink .info{min-width:0;flex:1}
+.rowlink .nm{font-weight:600;display:flex;align-items:center;gap:8px}
+.rowlink .mt{font-size:12.5px;color:var(--text-2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rowlink .rt{text-align:right;font-size:12.5px;color:var(--text-3);flex:0 0 auto}
+
+/* ---------- Pills / chips ---------- */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;letter-spacing:.01em}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.crit{background:var(--crit-soft);color:var(--crit)}
+.pill.neutral{background:var(--surface-2);color:var(--text-2)}
+.pill.accent{background:var(--accent-soft);color:var(--accent)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+.tag{display:inline-block;padding:3px 9px;border:1px solid var(--border-strong);border-radius:8px;font-size:12px;color:var(--text-2);background:var(--surface)}
+
+/* ---------- Alert band (contraindicaciones) ---------- */
+.alerts{display:flex;flex-direction:column;gap:8px}
+.alert{display:flex;gap:11px;padding:11px 14px;border-radius:var(--radius-sm);border-left:4px solid;font-size:13.5px}
+.alert.crit{background:var(--crit-soft);border-color:var(--crit)}
+.alert.warn{background:var(--warn-soft);border-color:var(--warn)}
+.alert .ai{flex:0 0 auto;font-weight:700}
+.alert b{font-weight:700}
+
+/* ---------- Forms ---------- */
+.form{display:flex;flex-direction:column;gap:22px}
+.fset{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+.fset>legend,.fset>.lh{display:block;width:100%;padding:14px 18px;border-bottom:1px solid var(--border);font-weight:600;font-size:15px;font-family:var(--serif)}
+.fset .fb{padding:16px 18px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px 16px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field.full{grid-column:1/-1}
+.field label{font-size:12.5px;font-weight:600;color:var(--text-2)}
+.field .help{font-size:11.5px;color:var(--text-3)}
+.field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--border-strong);border-radius:9px;background:var(--surface);color:var(--text);transition:border-color .12s,box-shadow .12s}
+.field textarea{resize:vertical;min-height:64px;line-height:1.45}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);outline:none}
+.checks{display:flex;flex-wrap:wrap;gap:8px}
+.chk{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid var(--border-strong);border-radius:9px;background:var(--surface);cursor:pointer;font-size:13px;user-select:none;transition:.12s}
+.chk input{accent-color:var(--accent);width:16px;height:16px}
+.chk:has(input:checked){background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.formbar{position:sticky;bottom:0;background:linear-gradient(to top,var(--bg) 60%,transparent);padding:14px 0 4px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+
+/* signature */
+.sig{border:1px dashed var(--border-strong);border-radius:10px;background:var(--surface-2);touch-action:none;width:100%;max-width:420px;height:150px;display:block}
+
+/* ---------- Section head ---------- */
+.shead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:26px 0 13px}
+.shead h2{font-family:var(--serif);font-size:20px;letter-spacing:-.01em}
+.crumbs{font-size:13px;color:var(--text-2);margin-bottom:14px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.crumbs a{color:var(--text-2);font-weight:500}
+.crumbs a:hover{color:var(--accent)}
+
+/* ---------- Empty ---------- */
+.empty{text-align:center;padding:46px 20px;color:var(--text-2)}
+.empty .ei{width:52px;height:52px;margin:0 auto 14px;border-radius:14px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+.empty .ei svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.6}
+.empty h3{font-family:var(--serif);font-size:19px;margin-bottom:6px;color:var(--text)}
+
+/* ---------- Data list (key/value) ---------- */
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:11px 20px}
+.kv .k{font-size:12px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.kv .v{font-size:14.5px;margin-top:2px}
+.kv .item.full{grid-column:1/-1}
+
+/* ---------- Modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(20,14,17,.5);backdrop-filter:blur(2px);display:grid;place-items:center;padding:20px;z-index:50}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);max-width:460px;width:100%;overflow:hidden}
+.modal .mh{padding:16px 20px;border-bottom:1px solid var(--border);font-family:var(--serif);font-weight:600;font-size:17px}
+.modal .mb{padding:18px 20px;color:var(--text-2)}
+.modal .mf{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
+
+.demo-flag{display:inline-block;background:var(--surface-3);color:var(--text-3);font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:6px}
+.notice{background:var(--accent-soft);border:1px solid transparent;color:var(--accent-2);border-radius:var(--radius-sm);padding:11px 14px;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+:root[data-theme="dark"] .notice,:root:not([data-theme="light"]) .notice{color:var(--accent)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:11px 18px;border-radius:10px;font-weight:600;font-size:14px;box-shadow:var(--shadow);z-index:80;opacity:0;transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+
+@media (max-width:860px){
+  .app{flex-direction:column}
+  .side{position:sticky;top:0;z-index:30;flex-direction:row;width:auto;height:auto;flex:none;align-items:center;gap:4px;padding:10px 12px;overflow-x:auto}
+  .brand{padding:0 10px 0 4px}.brand .s{display:none}
+  .nav{flex-direction:row;margin:0}
+  .nav a{padding:8px 11px;white-space:nowrap}.nav a span.lbl{display:none}
+  .nav a svg{width:20px;height:20px}
+  .side .spacer,.side .foot{display:none}
+  .side .theme{padding:0}.side .theme button{padding:7px 9px}
+  .wrap{padding:20px 16px 72px}
+  .cols2{grid-template-columns:1fr}
+  .fset .fb{grid-template-columns:1fr}
+  .kv{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="mark">C</div>
+      <div><div class="n">Cubix Doc</div><div class="s">Ficha de cliente</div></div>
+    </div>
+    <nav class="nav" id="nav">
+      <a href="#/" data-r="dash">${''}</a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="side theme" style="border:0;padding:6px 8px">
+      <button data-theme-btn="light">Claro</button>
+      <button data-theme-btn="dark">Oscuro</button>
+      <button data-theme-btn="system">Auto</button>
+    </div>
+    <div class="foot">Sistema Cubix Doc · Estudios Cubix<br><span id="storemode">Conectando…</span></div>
+  </aside>
+  <div class="main"><div class="wrap" id="view"></div></div>
+</div>
+<div id="modal-root"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================ Cubix Doc ============================================================
+   Sistema Cubix Doc (SCD) — panel único de ficha de cliente para esteticistas.
+   Modelo: Cliente (datos + anamnesis) -> Sesión (evaluación + consentimiento + seguimiento). Métricas y automatizaciones derivadas.
+   Persistencia: capability `db` (compartida). Fallback: localStorage si el visor no puede correr db.
+=================================================================================================================================== */
+
+/* ---------- ICONS ---------- */
+const IC={
+  dash:'<path d="M3 13h8V3H3zM13 21h8v-8h-8zM13 3v6h8V3zM3 21h8v-6H3z"/>',
+  users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  bolt:'<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  back:'<path d="M19 12H5M12 19l-7-7 7-7"/>',
+  wa:'<path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.4 8.4 0 0 1-4-1L3 21l1.9-5A8.4 8.4 0 0 1 4 12 8.38 8.38 0 0 1 12.5 3.5 8.38 8.38 0 0 1 21 11.5z"/>',
+  add:'<circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>',
+  cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>'
+};
+function icon(n){return '<svg viewBox="0 0 24 24">'+(IC[n]||'')+'</svg>';}
+
+/* ---------- STATE ---------- */
+let DBNS=null, mode='local', clientes=[], sesiones=[], config={};
+const LS={c:'cubixdoc_clientes',s:'cubixdoc_sesiones',cfg:'cubixdoc_config'};
+const DIAS_INACTIVA=60;
+
+const PROCS=["Limpieza facial profunda","Hidrafacial","Peeling químico","Dermaplaning","Microneedling","Radiofrecuencia facial","Máscara LED","Depilación láser","Depilación con cera","Masaje reductor","Drenaje linfático","Radiofrecuencia corporal","Ultracavitación","Presoterapia","Tratamiento anti-celulitis","Maderoterapia","Diseño de cejas","Lifting de pestañas"];
+
+/* ---------- HELPERS ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const nowISO=()=>new Date().toISOString();
+function fmtD(iso){if(!iso)return '—';const d=new Date(iso);if(isNaN(d))return '—';return d.toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric'});}
+function fmtDshort(iso){if(!iso)return '—';const d=new Date(iso);if(isNaN(d))return '—';return d.toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'});}
+function daysSince(iso){if(!iso)return Infinity;return Math.floor((Date.now()-new Date(iso))/864e5);}
+function daysUntil(iso){if(!iso)return null;return Math.ceil((new Date(iso)-Date.now())/864e5);}
+function money(n){n=Number(n)||0;return '$'+n.toLocaleString('es-AR');}
+function initials(n){return (n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();}
+function edad(iso){if(!iso)return null;const d=new Date(iso);if(isNaN(d))return null;const t=new Date();let a=t.getFullYear()-d.getFullYear();const m=t.getMonth()-d.getMonth();if(m<0||(m===0&&t.getDate()<d.getDate()))a--;return a>=0&&a<130?a:null;}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+
+function sesionesDe(cid){return sesiones.filter(s=>s.clienteId===cid).sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));}
+function cliente(id){return clientes.find(c=>c.id===id);}
+
+/* ---------- STORAGE ---------- */
+async function initStore(){
+  render(); // paint immediately (empty/loading)
+  try{DBNS=await window.claude?.use?.('db');}catch(e){DBNS=null;}
+  if(DBNS){
+    mode='db';$('#storemode').textContent='● Base compartida (db)';$('#storemode').style.color='var(--good)';
+    try{
+      DBNS.collection('clientes').onSnapshot(snap=>{clientes=snap.docs.filter(d=>d.exists).map(d=>({id:d.id,...d.data()}));onData();},e=>console.warn('db clientes',e));
+      DBNS.collection('sesiones').onSnapshot(snap=>{sesiones=snap.docs.filter(d=>d.exists).map(d=>({id:d.id,...d.data()}));onData();},e=>console.warn('db sesiones',e));
+      DBNS.doc('config/general').onSnapshot(snap=>{config=snap.exists?snap.data():{};onData();},()=>{});
+    }catch(e){fallbackLocal();}
+  }else{fallbackLocal();}
+}
+function fallbackLocal(){
+  mode='local';$('#storemode').textContent='● Local (este navegador)';$('#storemode').style.color='var(--warn)';
+  try{clientes=JSON.parse(localStorage.getItem(LS.c)||'[]');sesiones=JSON.parse(localStorage.getItem(LS.s)||'[]');config=JSON.parse(localStorage.getItem(LS.cfg)||'{}');}catch(e){clientes=[];sesiones=[];config={};}
+  onData();
+}
+function persistLocal(){try{localStorage.setItem(LS.c,JSON.stringify(clientes));localStorage.setItem(LS.s,JSON.stringify(sesiones));localStorage.setItem(LS.cfg,JSON.stringify(config));}catch(e){}}
+
+async function saveCliente(c){
+  c.updatedAt=nowISO();if(!c.createdAt)c.createdAt=nowISO();
+  if(mode==='db'){const{id,...body}=c;await DBNS.collection('clientes').doc(id).set(body);}
+  else{const i=clientes.findIndex(x=>x.id===c.id);if(i>=0)clientes[i]=c;else clientes.push(c);persistLocal();onData();}
+}
+async function saveSesion(s){
+  s.updatedAt=nowISO();if(!s.createdAt)s.createdAt=nowISO();
+  if(mode==='db'){const{id,...body}=s;await DBNS.collection('sesiones').doc(id).set(body);}
+  else{const i=sesiones.findIndex(x=>x.id===s.id);if(i>=0)sesiones[i]=s;else sesiones.push(s);persistLocal();onData();}
+}
+async function delCliente(id){
+  if(mode==='db'){await DBNS.collection('clientes').doc(id).delete();for(const s of sesionesDe(id))await DBNS.collection('sesiones').doc(s.id).delete();}
+  else{clientes=clientes.filter(c=>c.id!==id);sesiones=sesiones.filter(s=>s.clienteId!==id);persistLocal();onData();}
+}
+async function delSesion(id){
+  if(mode==='db'){await DBNS.collection('sesiones').doc(id).delete();}
+  else{sesiones=sesiones.filter(s=>s.id!==id);persistLocal();onData();}
+}
+async function saveConfig(cfg){
+  config=cfg;
+  if(mode==='db'){await DBNS.doc('config/general').set(cfg);}
+  else{persistLocal();onData();}
+}
+
+/* ---------- CLINICAL ALERTS (contraindicaciones) ---------- */
+function alertas(c){
+  const a=c.anamnesis||{},out=[];const ant=a.antecedentes||[],med=a.medFlags||[],alg=a.alergias||[];
+  const crit=(t)=>out.push({n:'crit',t});const warn=(t)=>out.push({n:'warn',t});
+  if(a.embarazo==='embarazo')crit('Embarazo — contraindica radiofrecuencia, ultracavitación, presoterapia y peelings/activos fuertes.');
+  if(a.embarazo==='lactancia')warn('Lactancia — evitar aparatología reductora y activos de alta penetración; consultar tratamientos.');
+  if(a.marcapasos)crit('Marcapasos / implante metálico — contraindica corrientes, radiofrecuencia y ultracavitación.');
+  if(med.includes('Isotretinoína (Roacután)'))crit('Isotretinoína — contraindica peeling, dermaplaning, microneedling y láser (esperar ~6 meses tras finalizar).');
+  if(med.includes('Anticoagulantes'))warn('Anticoagulantes — riesgo de sangrado/hematoma en microneedling y procedimientos invasivos.');
+  if(ant.includes('Oncológico'))crit('Antecedente oncológico — requiere apto médico antes de cualquier tratamiento.');
+  if(ant.includes('Epilepsia'))warn('Epilepsia — precaución con LED y electroestimulación.');
+  if(ant.includes('Diabetes'))warn('Diabetes — cicatrización más lenta; extremar asepsia y controlar procedimientos invasivos.');
+  if(a.herpes)warn('Herpes labial recurrente — considerar profilaxis antes de peeling/microneedling facial.');
+  if(a.queloides)warn('Tendencia a queloides — precaución con microneedling y procedimientos que generen microlesión.');
+  if(['IV','V','VI'].includes(a.fototipo))warn('Fototipo '+a.fototipo+' — mayor riesgo de hiperpigmentación con láser y peelings; ajustar parámetros.');
+  if(alg.length)warn('Alergias declaradas: '+alg.join(', ')+' — verificar composición de productos.');
+  return out;
+}
+
+/* ---------- WHATSAPP ---------- */
+function waLink(tel,msg){const d=String(tel||'').replace(/\D/g,'');return 'https://wa.me/'+d+'?text='+encodeURIComponent(msg);}
+function centro(){return config.centro||'nuestro centro';}
+function firstName(n){return (n||'').trim().split(/\s+/)[0]||'';}
+const TPL={
+  post:(c,s)=>`Hola ${firstName(c.nombre)}! 💆‍♀️ Gracias por tu visita. Después de tu ${s.procedimiento||'tratamiento'} te recomiendo: evitar sol directo 48 h, usar protector solar FPS 50+, no aplicar maquillaje por 24 h e hidratar bien la piel. Cualquier duda escribime. — ${centro()}`,
+  record:(c,s)=>`Hola ${firstName(c.nombre)}! Te recuerdo tu próxima sesión de ${(s.seguimiento&&s.seguimiento.procedimientoProx)||s.procedimiento||'tratamiento'} el ${fmtD(s.seguimiento&&s.seguimiento.proximaCita)}. ¿La confirmamos? 😊 — ${centro()}`,
+  react:(c)=>`Hola ${firstName(c.nombre)}! ✨ Hace un tiempo que no nos vemos. Preparé algo especial para vos este mes. ¿Coordinamos tu próxima sesión? — ${centro()}`
+};
+
+/* ---------- METRICS ---------- */
+function metrics(){
+  const conSesion=clientes.filter(c=>sesionesDe(c.id).length>0);
+  const activas=clientes.filter(c=>{const ss=sesionesDe(c.id);return ss.length&&daysSince(ss[0].fecha)<=DIAS_INACTIVA;});
+  const inactivas=conSesion.filter(c=>!activas.includes(c));
+  const recurrentes=conSesion.filter(c=>sesionesDe(c.id).length>=2);
+  const retencion=conSesion.length?Math.round(recurrentes.length/conSesion.length*100):0;
+  // ticket & ingresos mes
+  const m=new Date();const mesIni=new Date(m.getFullYear(),m.getMonth(),1).toISOString();
+  const sesMes=sesiones.filter(s=>(s.fecha||'')>=mesIni);
+  const conPrecio=sesiones.filter(s=>Number(s.precio)>0);
+  const ticket=conPrecio.length?Math.round(conPrecio.reduce((a,s)=>a+Number(s.precio),0)/conPrecio.length):0;
+  const ingresosMes=sesMes.reduce((a,s)=>a+(Number(s.precio)||0),0);
+  // frecuencia retorno
+  let gaps=[];conSesion.forEach(c=>{const f=sesionesDe(c.id).map(s=>s.fecha).filter(Boolean).sort();for(let i=1;i<f.length;i++)gaps.push((new Date(f[i])-new Date(f[i-1]))/864e5);});
+  const frecuencia=gaps.length?Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length):null;
+  // procedimientos top
+  const cnt={};sesiones.forEach(s=>{if(s.procedimiento)cnt[s.procedimiento]=(cnt[s.procedimiento]||0)+1;});
+  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  // cumplimiento seguimiento
+  const conCita=sesiones.filter(s=>s.seguimiento&&s.seguimiento.proximaCita&&daysUntil(s.seguimiento.proximaCita)<0);
+  const cumplidos=conCita.filter(s=>s.seguimiento.realizado);
+  const cumplimiento=conCita.length?Math.round(cumplidos.length/conCita.length*100):null;
+  return {total:clientes.length,activas:activas.length,inactivas,recurrentes:recurrentes.length,retencion,ticket,ingresosMes,sesMes:sesMes.length,frecuencia,top,cumplimiento,conCita:conCita.length};
+}
+
+/* ---------- AUTOMATION QUEUES ---------- */
+function autoQueues(){
+  const post=[],record=[],react=[];
+  sesiones.forEach(s=>{const c=cliente(s.clienteId);if(!c)return;
+    const d=daysSince(s.fecha);
+    if(d>=0&&d<=3&&!(s.postCuidadoEnviado))post.push({c,s});
+  });
+  sesiones.forEach(s=>{const c=cliente(s.clienteId);if(!c)return;const sg=s.seguimiento||{};
+    const du=daysUntil(sg.proximaCita);
+    if(sg.proximaCita&&du!==null&&du<=3&&!sg.realizado&&!s.recordatorioEnviado)record.push({c,s,du});
+  });
+  const m=metrics();m.inactivas.forEach(c=>{const ss=sesionesDe(c.id);react.push({c,dias:daysSince(ss[0].fecha)});});
+  post.sort((a,b)=>(b.s.fecha||'').localeCompare(a.s.fecha||''));
+  record.sort((a,b)=>a.du-b.du);
+  react.sort((a,b)=>b.dias-a.dias);
+  return {post,record,react};
+}
+
+/* ============================================================ ROUTER ============================================================ */
+let inEditor=false;
+function onData(){if(!inEditor)render();updateNav();}
+function parseHash(){const h=(location.hash||'#/').replace(/^#/,'');return h.split('/').filter(Boolean);}
+function nav(){location.hash=arguments[0];}
+window.addEventListener('hashchange',()=>{window.scrollTo(0,0);render();});
+
+function updateNav(){
+  const q=autoQueues();const n=q.post.length+q.record.length+q.react.length;
+  const seg=parseHash();const cur=seg[0]||'';
+  const items=[['','dash','Panel',IC.dash],['clientes','clientes','Clientes',IC.users],['automatizaciones','automatizaciones','Automatización',IC.bolt],['config','config','Ajustes',IC.gear]];
+  $('#nav').innerHTML=items.map(([r,key,lbl,ic])=>{
+    const active=(cur===r)||(cur===''&&r==='')||(cur==='cliente'&&r==='clientes');
+    const badge=(key==='automatizaciones'&&n>0)?`<span class="badge">${n}</span>`:'';
+    return `<a href="#/${r}" class="${active?'active':''}"><svg viewBox="0 0 24 24">${ic}</svg><span class="lbl">${lbl}</span>${badge}</a>`;
+  }).join('');
+}
+
+function render(){
+  updateNav();
+  const seg=parseHash();const v=$('#view');inEditor=false;
+  const r=seg[0]||'';
+  if(r===''){v.innerHTML=viewDash();bindDash();}
+  else if(r==='clientes'){v.innerHTML=viewClientes();}
+  else if(r==='cliente'&&seg[1]==='nueva'){inEditor=true;v.innerHTML=viewClienteForm(null);bindClienteForm(null);}
+  else if(r==='cliente'&&seg[2]==='editar'){inEditor=true;v.innerHTML=viewClienteForm(seg[1]);bindClienteForm(seg[1]);}
+  else if(r==='cliente'&&seg[2]==='sesion'){inEditor=true;v.innerHTML=viewSesionForm(seg[1],seg[3]==='nueva'?null:seg[3]);bindSesionForm(seg[1],seg[3]==='nueva'?null:seg[3]);}
+  else if(r==='cliente'&&seg[1]){v.innerHTML=viewCliente(seg[1]);}
+  else if(r==='automatizaciones'){v.innerHTML=viewAuto();}
+  else if(r==='config'){inEditor=true;v.innerHTML=viewConfig();bindConfig();}
+  else{v.innerHTML=viewDash();bindDash();}
+}
+
+/* ============================================================ VIEWS ============================================================ */
+function viewDash(){
+  const m=metrics();
+  const cfgWarn=!config.centro?`<div class="notice" style="margin-bottom:18px"><span>⚙️</span><div>Configurá el nombre del centro en <a href="#/config">Ajustes</a> para personalizar los mensajes de WhatsApp.</div></div>`:'';
+  const recientes=[...sesiones].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||'')).slice(0,6);
+  const topMax=m.top.length?m.top[0][1]:1;
+  return `
+  <div class="topbar">
+    <div><div class="eyebrow">Sistema Cubix Doc</div><h1>Panel de control</h1>
+    <p class="sub">Todo sale del mismo registro: cada ficha, evaluación y seguimiento alimenta estas métricas y las automatizaciones — sin planillas aparte.</p></div>
+    <a class="btn pri" href="#/cliente/nueva">${icon('plus')} Nueva clienta</a>
+  </div>
+  ${cfgWarn}
+  <div class="grid metrics">
+    ${tile('Clientas activas',m.activas,'','<b>'+m.total+'</b> en total · '+m.inactivas.length+' inactivas')}
+    ${tile('Retención',m.retencion,'%','<b>'+m.recurrentes+'</b> con 2+ sesiones')}
+    ${tile('Ticket promedio',money(m.ticket).replace('$',''),'$','sobre sesiones con precio')}
+    ${tile('Ingresos del mes',money(m.ingresosMes).replace('$',''),'$','<b>'+m.sesMes+'</b> sesiones este mes')}
+    ${tile('Frecuencia de retorno',m.frecuencia??'—',m.frecuencia!=null?' d':'','días promedio entre visitas')}
+    ${tile('Cumplimiento seguim.',m.cumplimiento??'—',m.cumplimiento!=null?'%':'',m.conCita+' citas de control vencidas')}
+  </div>
+  <div class="cols2" style="margin-top:16px">
+    <div class="panel">
+      <div class="ph"><h3>Últimas sesiones</h3><a class="btn ghost sm" href="#/clientes">Ver clientes</a></div>
+      ${recientes.length?`<div class="rowlist">${recientes.map(s=>{const c=cliente(s.clienteId);return `
+        <button class="rowlink" onclick="location.hash='#/cliente/${c?c.id:''}'">
+          <div class="avatar">${initials(c?c.nombre:'?')}</div>
+          <div class="info"><div class="nm">${esc(c?c.nombre:'—')} ${c&&c._ejemplo?'<span class="demo-flag">demo</span>':''}</div>
+          <div class="mt">${esc(s.procedimiento||'Sesión')} · ${esc(s.zona||'')}</div></div>
+          <div class="rt">${fmtD(s.fecha)}<br>${s.precio?money(s.precio):''}</div>
+        </button>`}).join('')}</div>`:emptyMini('Todavía no cargaste sesiones.')}
+    </div>
+    <div class="panel">
+      <div class="ph"><h3>Procedimientos más pedidos</h3></div>
+      <div class="pb">${m.top.length?m.top.map(([p,n])=>`
+        <div class="bar"><div class="bl">${esc(p)}</div><div class="bv tnum">${n}</div>
+        <div class="track"><div class="fill" style="width:${Math.round(n/topMax*100)}%"></div></div></div>`).join(''):'<p style="color:var(--text-2);font-size:14px">Sin datos aún.</p>'}
+      </div>
+    </div>
+  </div>
+  ${clientes.length===0?dashSeedCta():''}
+  `;
+}
+function tile(lab,num,unit,hint){return `<div class="tile"><div class="lab">${lab}</div><div class="num tnum">${unit==='$'?'<small>$</small>':''}${num}${unit&&unit!=='$'?'<small>'+unit+'</small>':''}</div><div class="hint">${hint}</div></div>`;}
+function emptyMini(t){return `<div class="pb" style="color:var(--text-2);font-size:14px">${t}</div>`;}
+function dashSeedCta(){return `<div class="panel" style="margin-top:16px"><div class="pb" style="text-align:center;padding:26px">
+  <h3 style="font-family:var(--serif);font-size:18px;margin-bottom:6px">Empezá con datos de ejemplo</h3>
+  <p style="color:var(--text-2);font-size:14px;margin-bottom:14px;max-width:52ch;margin-inline:auto">Cargá 3 clientas de demostración para ver el panel funcionando. Después las borrás con un clic.</p>
+  <button class="btn ghost" onclick="seedDemo()">Cargar datos de ejemplo</button></div></div>`;}
+
+function viewClientes(){
+  const list=[...clientes].sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
+  const demo=clientes.some(c=>c._ejemplo);
+  return `
+  <div class="topbar">
+    <div><div class="eyebrow">Registro</div><h1>Clientes</h1><p class="sub">${clientes.length} registro${clientes.length===1?'':'s'} · un único perfil por persona con toda su historia.</p></div>
+    <div style="display:flex;gap:10px">${demo?'<button class="btn ghost sm" onclick="clearDemo()">Borrar ejemplos</button>':''}<a class="btn pri" href="#/cliente/nueva">${icon('plus')} Nueva clienta</a></div>
+  </div>
+  ${list.length?`<div class="panel"><div class="rowlist">${list.map(c=>{
+    const ss=sesionesDe(c.id);const al=alertas(c);const crit=al.filter(x=>x.n==='crit').length;
+    const act=ss.length&&daysSince(ss[0].fecha)<=DIAS_INACTIVA;
+    return `<button class="rowlink" onclick="location.hash='#/cliente/${c.id}'">
+      <div class="avatar">${initials(c.nombre)}</div>
+      <div class="info"><div class="nm">${esc(c.nombre||'Sin nombre')} ${c._ejemplo?'<span class="demo-flag">demo</span>':''}
+        ${crit?'<span class="pill crit"><span class="dot"></span>Contraindicación</span>':''}</div>
+        <div class="mt">${ss.length} sesión${ss.length===1?'':'es'} · ${ss.length?'última '+fmtD(ss[0].fecha):'sin sesiones'} · ${esc(c.telefono||'sin tel.')}</div></div>
+      <div class="rt">${act?'<span class="pill good"><span class="dot"></span>Activa</span>':(ss.length?'<span class="pill neutral">Inactiva</span>':'<span class="pill accent">Nueva</span>')}</div>
+    </button>`}).join('')}</div></div>`:`
+    <div class="panel"><div class="empty"><div class="ei">${icon('users')}</div><h3>Sin clientes todavía</h3>
+    <p style="max-width:46ch;margin:0 auto 16px">Creá la primera ficha o cargá datos de ejemplo para explorar el sistema.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><a class="btn pri" href="#/cliente/nueva">${icon('plus')} Nueva clienta</a><button class="btn ghost" onclick="seedDemo()">Datos de ejemplo</button></div></div></div>`}
+  `;
+}
+
+function viewCliente(id){
+  const c=cliente(id);if(!c)return notFound();
+  const a=c.anamnesis||{};const al=alertas(c);const ss=sesionesDe(id);
+  const ant=(a.antecedentes||[]).concat(a.medFlags||[]);
+  const kv=(k,v)=>v?`<div class="item"><div class="k">${k}</div><div class="v">${esc(v)}</div></div>`:'';
+  return `
+  <div class="crumbs"><a href="#/clientes">Clientes</a> ${chev()} <span>${esc(c.nombre||'')}</span></div>
+  <div class="topbar">
+    <div style="display:flex;gap:16px;align-items:center">
+      <div class="avatar" style="width:54px;height:54px;flex:0 0 54px;font-size:20px;border-radius:14px">${initials(c.nombre)}</div>
+      <div><h1 style="font-size:26px">${esc(c.nombre||'Sin nombre')} ${c._ejemplo?'<span class="demo-flag">demo</span>':''}</h1>
+      <p class="sub" style="margin-top:4px">${[edad(a.fechaNac)?edad(a.fechaNac)+' años':'',c.ocupacion,c.telefono].filter(Boolean).map(esc).join(' · ')||'—'}</p></div>
+    </div>
+    <div style="display:flex;gap:9px;flex-wrap:wrap">
+      <a class="btn ghost sm" href="#/cliente/${id}/editar">Editar ficha</a>
+      <a class="btn pri" href="#/cliente/${id}/sesion/nueva">${icon('add')} Nueva sesión</a>
+    </div>
+  </div>
+
+  ${al.length?`<div class="panel" style="margin-bottom:16px"><div class="ph"><h3>Alertas clínicas</h3><span class="pill ${al.some(x=>x.n==='crit')?'crit':'warn'}">${al.length}</span></div>
+    <div class="pb"><div class="alerts">${al.map(x=>`<div class="alert ${x.n}"><span class="ai">${x.n==='crit'?'⛔':'⚠️'}</span><div>${esc(x.t)}</div></div>`).join('')}</div></div></div>`:''}
+
+  <div class="cols2">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="panel"><div class="ph"><h3>Historial de sesiones</h3><span class="pill neutral tnum">${ss.length}</span></div>
+        ${ss.length?`<div class="rowlist">${ss.map(s=>{const sg=s.seguimiento||{};const du=daysUntil(sg.proximaCita);
+          return `<button class="rowlink" onclick="location.hash='#/cliente/${id}/sesion/${s.id}'">
+          <div class="avatar" style="background:var(--surface-2);color:var(--accent)">${icon('cal')}</div>
+          <div class="info"><div class="nm">${esc(s.procedimiento||'Sesión')}</div>
+            <div class="mt">${fmtD(s.fecha)} · ${esc(s.zona||'')} ${s.consentimiento&&s.consentimiento.firma?'· ✍️ firmado':''} ${sg.proximaCita?'· control '+fmtD(sg.proximaCita):''}</div></div>
+          <div class="rt">${s.precio?money(s.precio):''}${sg.proximaCita&&du!=null&&du<=3&&!sg.realizado?'<br><span class="pill warn">control</span>':''}</div>
+        </button>`}).join('')}</div>`:emptyMini('Aún no hay sesiones. Registrá la primera atención.')}
+      </div>
+
+      <div class="panel"><div class="ph"><h3>Anamnesis / Ficha de salud</h3></div>
+        <div class="pb">
+          <div class="kv" style="margin-bottom:14px">
+            ${kv('Fecha nac.',a.fechaNac?fmtD(a.fechaNac):'')}
+            ${kv('Fototipo (Fitzpatrick)',a.fototipo)}
+            ${kv('Tipo de piel',a.tipoPiel)}
+            ${kv('Embarazo / lactancia',a.embarazo&&a.embarazo!=='no'?a.embarazo:'')}
+          </div>
+          ${a.motivo?`<div class="item full" style="margin-bottom:12px"><div class="k">Motivo / objetivo</div><div class="v">${esc(a.motivo)}</div></div>`:''}
+          ${ant.length?`<div class="k" style="margin-bottom:6px">Antecedentes</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">${ant.map(x=>`<span class="tag">${esc(x)}</span>`).join('')}</div>`:''}
+          ${(a.alergias||[]).length?`<div class="k" style="margin-bottom:6px">Alergias</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">${a.alergias.map(x=>`<span class="tag" style="border-color:var(--crit);color:var(--crit)">${esc(x)}</span>`).join('')}</div>`:''}
+          <div class="kv">
+            ${kv('Medicación actual',a.medicacion)}
+            ${kv('Cirugías previas',a.cirugias)}
+            ${kv('Tratamientos estéticos previos',a.tratPrevios)}
+            ${kv('Rutina de skincare',a.skincare)}
+            ${kv('Hábitos',[a.tabaco?'Fuma':'',a.solExpo?'Sol: '+a.solExpo:'',a.protector?'Usa FPS':''].filter(Boolean).join(' · '))}
+          </div>
+          ${!a.fechaNac&&!a.motivo&&!ant.length?'<p style="color:var(--text-2);font-size:14px">Ficha de salud incompleta. <a href="#/cliente/'+id+'/editar">Completar anamnesis</a>.</p>':''}
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="panel"><div class="ph"><h3>Contacto</h3></div><div class="pb">
+        <div class="kv">
+          ${kv('Teléfono / WhatsApp',c.telefono)}
+          ${kv('Email',c.email)}
+          ${kv('Ocupación',c.ocupacion)}
+          ${kv('Cómo nos conoció',c.origen)}
+        </div>
+        ${c.telefono?`<a class="btn wa sm" style="margin-top:14px;width:100%;justify-content:center" href="${waLink(c.telefono,'Hola '+firstName(c.nombre)+'! 😊')}" target="_blank" rel="noopener">${icon('wa')} Escribir por WhatsApp</a>`:''}
+      </div></div>
+      <div class="panel"><div class="ph"><h3>Resumen</h3></div><div class="pb">
+        <div class="kv">
+          ${kv('Sesiones',String(ss.length))}
+          ${kv('Total facturado',money(ss.reduce((x,s)=>x+(Number(s.precio)||0),0)))}
+          ${kv('Primera visita',ss.length?fmtD(ss[ss.length-1].fecha):'')}
+          ${kv('Última visita',ss.length?fmtD(ss[0].fecha):'')}
+        </div>
+      </div></div>
+      <div class="panel"><div class="pb" style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:var(--text-2)">Ficha creada ${fmtD(c.createdAt)}</span>
+        <button class="btn danger sm" onclick="confirmDel('${id}')">Eliminar</button>
+      </div></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- CLIENTE FORM ---------- */
+function viewClienteForm(id){
+  const c=id?cliente(id):null;if(id&&!c)return notFound();
+  const a=(c&&c.anamnesis)||{};
+  const ANT=['Diabetes','Hipertensión','Cardiopatía','Tiroides','Autoinmune','Epilepsia','Oncológico','Várices'];
+  const MED=['Anticoagulantes','Isotretinoína (Roacután)','Corticoides','Anticonceptivos','Ansiolíticos'];
+  const ALG=['Cosméticos','Látex','Medicamentos','Níquel','Perfumes'];
+  const chks=(name,opts,sel)=>opts.map(o=>`<label class="chk"><input type="checkbox" name="${name}" value="${esc(o)}" ${(sel||[]).includes(o)?'checked':''}>${esc(o)}</label>`).join('');
+  return `
+  <div class="crumbs"><a href="#/clientes">Clientes</a> ${chev()} ${c?`<a href="#/cliente/${id}">${esc(c.nombre)}</a> ${chev()} <span>Editar</span>`:'<span>Nueva clienta</span>'}</div>
+  <div class="topbar"><div><div class="eyebrow">Ficha de cliente</div><h1>${c?'Editar ficha':'Nueva clienta'}</h1></div></div>
+  <form class="form" id="cform" autocomplete="off">
+    <fieldset class="fset" style="border:0;padding:0;margin:0"><div class="lh">Datos personales</div>
+      <div class="fb">
+        <div class="field full"><label for="f_nombre">Nombre y apellido *</label><input id="f_nombre" required value="${esc(c?.nombre||'')}"></div>
+        <div class="field"><label for="f_tel">Teléfono / WhatsApp</label><input id="f_tel" inputmode="tel" placeholder="Ej: 5493411234567" value="${esc(c?.telefono||'')}"><span class="help">Con código de país, sin espacios ni símbolos.</span></div>
+        <div class="field"><label for="f_email">Email</label><input id="f_email" type="email" value="${esc(c?.email||'')}"></div>
+        <div class="field"><label for="f_nac">Fecha de nacimiento</label><input id="f_nac" type="date" value="${esc(a.fechaNac||'')}"></div>
+        <div class="field"><label for="f_ocup">Ocupación</label><input id="f_ocup" value="${esc(c?.ocupacion||'')}"></div>
+        <div class="field"><label for="f_origen">¿Cómo nos conoció?</label><input id="f_origen" value="${esc(c?.origen||'')}" placeholder="Instagram, recomendación…"></div>
+      </div>
+    </fieldset>
+    <fieldset class="fset" style="border:0;padding:0;margin:0"><div class="lh">Anamnesis — objetivo y piel</div>
+      <div class="fb">
+        <div class="field full"><label for="f_motivo">Motivo de consulta / objetivo estético</label><textarea id="f_motivo">${esc(a.motivo||'')}</textarea></div>
+        <div class="field"><label for="f_tipopiel">Tipo de piel</label><select id="f_tipopiel">${sel(['','Normal','Seca','Grasa','Mixta','Sensible'],a.tipoPiel)}</select></div>
+        <div class="field"><label for="f_fototipo">Fototipo (Fitzpatrick)</label><select id="f_fototipo">${sel(['','I','II','III','IV','V','VI'],a.fototipo)}</select></div>
+        <div class="field"><label for="f_embarazo">Embarazo / lactancia</label><select id="f_embarazo">${sel([['no','No'],['embarazo','Embarazo'],['lactancia','Lactancia']],a.embarazo,true)}</select></div>
+        <div class="field"><label for="f_sol">Exposición solar</label><select id="f_sol">${sel(['','Baja','Media','Alta / cama solar'],a.solExpo)}</select></div>
+      </div>
+    </fieldset>
+    <fieldset class="fset" style="border:0;padding:0;margin:0"><div class="lh">Antecedentes de salud</div>
+      <div class="fb">
+        <div class="field full"><label>Antecedentes médicos</label><div class="checks">${chks('ant',ANT,a.antecedentes)}</div></div>
+        <div class="field full"><label>Medicación actual (marcar y detallar)</label><div class="checks">${chks('med',MED,a.medFlags)}</div></div>
+        <div class="field full"><label for="f_medic">Detalle de medicación</label><input id="f_medic" value="${esc(a.medicacion||'')}"></div>
+        <div class="field full"><label>Alergias</label><div class="checks">${chks('alg',ALG,a.alergias)}</div></div>
+        <div class="field full" style="display:flex;flex-direction:row;flex-wrap:wrap;gap:8px">
+          <label class="chk"><input type="checkbox" id="f_marca" ${a.marcapasos?'checked':''}>Marcapasos / implante metálico</label>
+          <label class="chk"><input type="checkbox" id="f_herpes" ${a.herpes?'checked':''}>Herpes recurrente</label>
+          <label class="chk"><input type="checkbox" id="f_queloides" ${a.queloides?'checked':''}>Tendencia a queloides</label>
+          <label class="chk"><input type="checkbox" id="f_tabaco" ${a.tabaco?'checked':''}>Fuma</label>
+          <label class="chk"><input type="checkbox" id="f_protector" ${a.protector?'checked':''}>Usa protector solar</label>
+        </div>
+        <div class="field"><label for="f_cir">Cirugías previas</label><input id="f_cir" value="${esc(a.cirugias||'')}"></div>
+        <div class="field"><label for="f_trat">Tratamientos estéticos previos</label><input id="f_trat" value="${esc(a.tratPrevios||'')}"></div>
+        <div class="field full"><label for="f_skin">Rutina de skincare actual</label><textarea id="f_skin">${esc(a.skincare||'')}</textarea></div>
+      </div>
+    </fieldset>
+    <div class="formbar">
+      <a class="btn ghost" href="${c?'#/cliente/'+id:'#/clientes'}">Cancelar</a>
+      <button class="btn pri" type="submit">Guardar ficha</button>
+    </div>
+  </form>`;
+}
+
+/* ---------- SESION FORM ---------- */
+function viewSesionForm(cid,sid){
+  const c=cliente(cid);if(!c)return notFound();
+  const s=sid?sesiones.find(x=>x.id===sid):null;if(sid&&!s)return notFound();
+  const ev=(s&&s.evaluacion)||{};const co=(s&&s.consentimiento)||{};const sg=(s&&s.seguimiento)||{};
+  const al=alertas(c);
+  const corp=(s&&s.zona==='Corporal');
+  return `
+  <div class="crumbs"><a href="#/clientes">Clientes</a> ${chev()} <a href="#/cliente/${cid}">${esc(c.nombre)}</a> ${chev()} <span>${sid?'Sesión':'Nueva sesión'}</span></div>
+  <div class="topbar"><div><div class="eyebrow">${esc(c.nombre)}</div><h1>${sid?'Sesión — '+fmtD(s.fecha):'Registrar sesión'}</h1></div>
+    ${sid?`<button class="btn danger sm" onclick="confirmDelSes('${sid}','${cid}')">Eliminar sesión</button>`:''}
+  </div>
+  ${al.length?`<div class="notice" style="margin-bottom:16px;background:${al.some(x=>x.n==='crit')?'var(--crit-soft)':'var(--warn-soft)'};color:${al.some(x=>x.n==='crit')?'var(--crit)':'var(--warn)'}"><span>${al.some(x=>x.n==='crit')?'⛔':'⚠️'}</span><div><b>Revisar antes de tratar:</b> ${al.map(x=>esc(x.t)).join(' ')}</div></div>`:''}
+  <form class="form" id="sform" autocomplete="off">
+    <fieldset class="fset" style="border:0;padding:0;margin:0"><div class="lh">Atención</div>
+      <div class="fb">
+        <div class="field"><label for="s_fecha">Fecha *</label><input id="s_fecha" type="date" required value="${esc(s?s.fecha:new Date().toISOString().slice(0,10))}"></div>
+        <div class="field"><label for="s_zona">Zona</label><select id="s_zona" onchange="toggleCorp(this.value)">${sel(['Facial','Corporal','Otro'],s?s.zona:'Facial')}</select></div>
+        <div class="field"><label for="s_proc">Procedimiento *</label><select id="s_proc" required>${sel([''].concat(PROCS),s?s.procedimiento:'')}</select></div>
+        <div class="field"><label for="s_prof">Profesional</label><input id="s_prof" value="${esc(s?s.profesional:config.profesional||'')}"></div>
+        <div class="field"><label for="s_precio">Precio ($)</label><input id="s_precio" type="number" min="0" inputmode="numeric" value="${esc(s?s.precio:'')}"></div>
+        <div class="field"><label for="s_dur">Duración (min)</label><input id="s_dur" type="number" min="0" inputmode="numeric" value="${esc(s?s.duracion:'')}"></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="fset" style="border:0;padding:0;margin:0"><div class="lh">Evaluación <span id="ev_facial" ${corp?'hidden':''}>facial</span><span id="ev_corp" ${corp?'':'hidden'}>corporal</span></div>
+      <div class="fb" id="evfacial" ${corp?'hidden':''}>
+        <div class="field"><label for="e_acne">Acné (grado)</label><select id="e_acne">${sel(['','Ausente','Comedoniano','Leve','Moderado','Severo'],ev.acne)}</select></div>
+        <div class="field"><label for="e_manchas">Manchas / melasma</label><select id="e_manchas">${sel(['','No','Leve','Moderado','Marcado'],ev.manchas)}</select></div>
+        <div class="field"><label for="e_arrugas">Arrugas / líneas</label><select id="e_arrugas">${sel(['','No','Finas','Moderadas','Profundas'],ev.arrugas)}</select></div>
+        <div class="field"><label for="e_flac">Flacidez / tono</label><select id="e_flac">${sel(['','Firme','Leve','Moderada','Marcada'],ev.flacidez)}</select></div>
+        <div class="field"><label for="e_hidra">Hidratación</label><select id="e_hidra">${sel(['','Normal','Deshidratada','Muy deshidratada'],ev.hidratacion)}</select></div>
+        <div class="field"><label for="e_sens">Sensibilidad / cuperosis</label><select id="e_sens">${sel(['','No','Leve','Cuperosis','Rosácea'],ev.sensibilidad)}</select></div>
+      </div>
+      <div class="fb" id="evcorp" ${corp?'':'hidden'}>
+        <div class="field"><label for="e_peso">Peso (kg)</label><input id="e_peso" type="number" min="0" value="${esc(ev.peso||'')}"></div>
+        <div class="field"><label for="e_cintura">Cintura (cm)</label><input id="e_cintura" type="number" min="0" value="${esc(ev.cintura||'')}"></div>
+        <div class="field"><label for="e_cadera">Cadera (cm)</label><input id="e_cadera" type="number" min="0" value="${esc(ev.cadera||'')}"></div>
+        <div class="field"><label for="e_celu">Celulitis (grado)</label><select id="e_celu">${sel(['','No','I','II','III','IV'],ev.celulitis)}</select></div>
+        <div class="field"><label for="e_adip">Adiposidad localizada</label><select id="e_adip">${sel(['','No','Leve','Moderada','Marcada'],ev.adiposidad)}</select></div>
+        <div class="field"><label for="e_estrias">Estrías</label><select id="e_estrias">${sel(['','No','Recientes','Antiguas','Ambas'],ev.estrias)}</select></div>
+      </div>
+      <div class="fb" style="padding-top:0"><div class="field full"><label for="e_diag">Diagnóstico / plan de tratamiento</label><textarea id="e_diag">${esc(ev.diagnostico||'')}</textarea></div></div>
+    </fieldset>
+
+    <fieldset class="fset" style="border:0;padding:0;margin:0"><div class="lh">Consentimiento informado</div>
+      <div class="fb">
+        <div class="field full"><label class="chk" style="width:fit-content"><input type="checkbox" id="c_acepta" ${co.aceptado?'checked':''}>La clienta fue informada de procedimiento, cuidados y riesgos, y presta su consentimiento.</label></div>
+        <div class="field full"><label class="chk" style="width:fit-content"><input type="checkbox" id="c_imagen" ${co.imagen?'checked':''}>Autoriza el uso de imágenes (antes/después) con fines profesionales.</label></div>
+        <div class="field full"><label>Firma</label>
+          <canvas id="sigpad" class="sig"></canvas>
+          <div style="display:flex;gap:8px;margin-top:8px"><button type="button" class="btn ghost sm" onclick="clearSig()">Limpiar firma</button><span class="help" id="sigstate">${co.firma?'Firma registrada ✓':'Sin firmar'}</span></div>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="fset" style="border:0;padding:0;margin:0"><div class="lh">Seguimiento post-atención</div>
+      <div class="fb">
+        <div class="field full"><label for="g_prod">Productos / activos aplicados</label><input id="g_prod" value="${esc(sg.productos||'')}"></div>
+        <div class="field"><label for="g_param">Parámetros de aparatología</label><input id="g_param" value="${esc(sg.parametros||'')}" placeholder="Intensidad, tiempo…"></div>
+        <div class="field"><label for="g_react">Reacción / tolerancia</label><select id="g_react">${sel(['','Excelente','Buena','Con molestia leve','Reacción adversa'],sg.reaccion)}</select></div>
+        <div class="field full"><label for="g_reco">Recomendaciones post-cuidado</label><textarea id="g_reco">${esc(sg.recomendaciones||'')}</textarea></div>
+        <div class="field"><label for="g_prox">Próxima cita (control)</label><input id="g_prox" type="date" value="${esc(sg.proximaCita||'')}"></div>
+        <div class="field"><label for="g_proxproc">Procedimiento próxima cita</label><input id="g_proxproc" value="${esc(sg.procedimientoProx||'')}"></div>
+        ${sid?`<div class="field full"><label class="chk" style="width:fit-content"><input type="checkbox" id="g_realizado" ${sg.realizado?'checked':''}>Seguimiento / control realizado</label></div>`:''}
+      </div>
+    </fieldset>
+
+    <div class="formbar">
+      <a class="btn ghost" href="#/cliente/${cid}">Cancelar</a>
+      <button class="btn pri" type="submit">Guardar sesión</button>
+    </div>
+  </form>`;
+}
+
+/* ---------- AUTOMATIZACIONES ---------- */
+function viewAuto(){
+  const q=autoQueues();
+  const card=(title,desc,items,render)=>`<div class="panel" style="margin-bottom:16px"><div class="ph"><h3>${title}</h3><span class="pill ${items.length?'accent':'neutral'} tnum">${items.length}</span></div>
+    <div class="pb" style="padding-bottom:8px"><p style="color:var(--text-2);font-size:13px;margin-bottom:${items.length?'4px':'0'}">${desc}</p></div>
+    ${items.length?`<div class="rowlist" style="border-top:1px solid var(--border)">${items.map(render).join('')}</div>`:'<div class="pb" style="padding-top:0;color:var(--text-3);font-size:14px">Nada pendiente. ✨</div>'}</div>`;
+  return `
+  <div class="topbar"><div><div class="eyebrow">Se disparan solas del registro</div><h1>Automatización</h1>
+    <p class="sub">Los mismos eventos que en producción dispararían n8n + WAHA. Acá generás el WhatsApp listo para enviar y lo marcás como hecho.</p></div></div>
+  <div class="notice" style="margin-bottom:18px"><span>🔗</span><div>Cada botón abre WhatsApp con el mensaje pre-armado (link <b>wa.me</b>). En la versión escalable (n8n + WAHA + Postgres) estos envíos se automatizan sin intervención.</div></div>
+  ${card('Post-cuidado (últimas 72 h)','Clientas atendidas en los últimos 3 días que todavía no recibieron sus indicaciones de post-cuidado.',q.post,({c,s})=>rowAuto(c,'Post-cuidado · '+esc(s.procedimiento||''),fmtD(s.fecha),waLink(c.telefono,TPL.post(c,s)),`markPost('${s.id}')`,'Marcar enviado'))}
+  ${card('Recordatorio de seguimiento','Controles / próximas citas dentro de los próximos 3 días o vencidas, aún sin realizar.',q.record,({c,s,du})=>rowAuto(c,'Control · '+esc((s.seguimiento&&s.seguimiento.procedimientoProx)||s.procedimiento||''),du<0?'vencido':du===0?'hoy':'en '+du+' d',waLink(c.telefono,TPL.record(c,s)),`markRecord('${s.id}')`,'Marcar avisado'))}
+  ${card('Reactivar clientas inactivas','Clientas con sesiones pero sin visita en los últimos '+DIAS_INACTIVA+' días.',q.react,({c,dias})=>rowAuto(c,'Inactiva hace '+dias+' días','',waLink(c.telefono,TPL.react(c)),null,null))}
+  `;
+}
+function rowAuto(c,label,right,wa,markFn,markLabel){
+  const noTel=!c.telefono;
+  return `<div class="rowlink" style="cursor:default">
+    <div class="avatar">${initials(c.nombre)}</div>
+    <div class="info"><div class="nm">${esc(c.nombre)} ${c._ejemplo?'<span class="demo-flag">demo</span>':''}</div><div class="mt">${label}${right?' · '+right:''}</div></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+      ${noTel?'<span class="pill warn">sin teléfono</span>':`<a class="btn wa sm" href="${wa}" target="_blank" rel="noopener">${icon('wa')} WhatsApp</a>`}
+      ${markFn?`<button class="btn ghost sm" onclick="${markFn}">${markLabel}</button>`:''}
+    </div></div>`;
+}
+
+/* ---------- CONFIG ---------- */
+function viewConfig(){
+  return `
+  <div class="topbar"><div><div class="eyebrow">Ajustes</div><h1>Configuración</h1><p class="sub">Datos del centro para personalizar los mensajes automáticos.</p></div></div>
+  <form class="form" id="cfgform" style="max-width:560px">
+    <fieldset class="fset" style="border:0;padding:0;margin:0"><div class="lh">Centro</div><div class="fb">
+      <div class="field full"><label for="cfg_centro">Nombre del centro / profesional</label><input id="cfg_centro" value="${esc(config.centro||'')}" placeholder="Ej: Estudio NC"><span class="help">Aparece al final de cada mensaje de WhatsApp.</span></div>
+      <div class="field full"><label for="cfg_prof">Profesional por defecto</label><input id="cfg_prof" value="${esc(config.profesional||'')}"></div>
+    </div></fieldset>
+    <div class="formbar"><a class="btn ghost" href="#/">Volver</a><button class="btn pri" type="submit">Guardar</button></div>
+  </form>
+  <div class="panel" style="max-width:560px;margin-top:8px"><div class="pb">
+    <h3 style="font-size:14px;margin-bottom:6px">Datos</h3>
+    <p style="color:var(--text-2);font-size:13px;margin-bottom:12px">Modo de almacenamiento actual: <b id="cfgmode">${mode==='db'?'base compartida':'local'}</b>.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn ghost sm" onclick="seedDemo()">Cargar datos de ejemplo</button>
+      <button class="btn danger sm" onclick="clearDemo()">Borrar datos de ejemplo</button>
+    </div>
+  </div></div>`;
+}
+
+/* ---------- misc views ---------- */
+function notFound(){return `<div class="panel"><div class="empty"><div class="ei">${icon('users')}</div><h3>No encontrado</h3><p>Ese registro no existe.</p><a class="btn ghost" style="margin-top:12px" href="#/clientes">Ver clientes</a></div></div>`;}
+function chev(){return '<span style="color:var(--text-3)">›</span>';}
+function sel(opts,val,pairs){return opts.map(o=>{const value=pairs?o[0]:o;const label=pairs?o[1]:(o||'—');return `<option value="${esc(value)}" ${String(val||'')===String(value)?'selected':''}>${esc(label)}</option>`;}).join('');}
+
+/* ============================================================ BIND ============================================================ */
+function bindDash(){}
+function readChecks(name){return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(i=>i.value);}
+
+function bindClienteForm(id){
+  const c=id?cliente(id):null;
+  $('#cform').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const nombre=$('#f_nombre').value.trim();if(!nombre){toast('Falta el nombre');return;}
+    const obj={
+      id:id||uid('c_'),nombre,
+      telefono:$('#f_tel').value.trim(),email:$('#f_email').value.trim(),
+      ocupacion:$('#f_ocup').value.trim(),origen:$('#f_origen').value.trim(),
+      _ejemplo:c?!!c._ejemplo:false,createdAt:c?c.createdAt:null,
+      anamnesis:{
+        fechaNac:$('#f_nac').value,motivo:$('#f_motivo').value.trim(),
+        tipoPiel:$('#f_tipopiel').value,fototipo:$('#f_fototipo').value,embarazo:$('#f_embarazo').value,solExpo:$('#f_sol').value,
+        antecedentes:readChecks('ant'),medFlags:readChecks('med'),alergias:readChecks('alg'),
+        medicacion:$('#f_medic').value.trim(),cirugias:$('#f_cir').value.trim(),tratPrevios:$('#f_trat').value.trim(),skincare:$('#f_skin').value.trim(),
+        marcapasos:$('#f_marca').checked,herpes:$('#f_herpes').checked,queloides:$('#f_queloides').checked,tabaco:$('#f_tabaco').checked,protector:$('#f_protector').checked
+      }
+    };
+    try{await saveCliente(obj);toast('Ficha guardada');location.hash='#/cliente/'+obj.id;}
+    catch(err){toast('Error al guardar');console.error(err);}
+  });
+}
+
+let sigCtx=null,sigDirty=false,sigExisting=null;
+function initSig(existing){
+  const cv=$('#sigpad');if(!cv)return;sigExisting=existing||null;
+  const rect=cv.getBoundingClientRect();cv.width=rect.width*2;cv.height=rect.height*2;
+  sigCtx=cv.getContext('2d');sigCtx.scale(2,2);sigCtx.lineWidth=2;sigCtx.lineCap='round';
+  sigCtx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--text')||'#000';
+  if(existing){const img=new Image();img.onload=()=>sigCtx.drawImage(img,0,0,rect.width,rect.height);img.src=existing;}
+  let drawing=false,px,py;
+  const pos=e=>{const r=cv.getBoundingClientRect();const t=e.touches?e.touches[0]:e;return[t.clientX-r.left,t.clientY-r.top];};
+  const start=e=>{drawing=true;[px,py]=pos(e);e.preventDefault();};
+  const move=e=>{if(!drawing)return;const[x,y]=pos(e);sigCtx.beginPath();sigCtx.moveTo(px,py);sigCtx.lineTo(x,y);sigCtx.stroke();[px,py]=[x,y];sigDirty=true;$('#sigstate').textContent='Firma registrada ✓';e.preventDefault();};
+  const end=()=>{drawing=false;};
+  cv.addEventListener('pointerdown',start);cv.addEventListener('pointermove',move);
+  window.addEventListener('pointerup',end);
+}
+function clearSig(){const cv=$('#sigpad');if(!cv)return;sigCtx.clearRect(0,0,cv.width,cv.height);sigDirty=true;sigExisting=null;$('#sigstate').textContent='Sin firmar';}
+function sigData(){const cv=$('#sigpad');if(sigDirty){ // check if blank
+    return sigIsBlank()?'':cv.toDataURL('image/png');}
+  return sigExisting||'';}
+function sigIsBlank(){const cv=$('#sigpad');const blank=document.createElement('canvas');blank.width=cv.width;blank.height=cv.height;return cv.toDataURL()===blank.toDataURL();}
+
+window.toggleCorp=function(z){const f=$('#evfacial'),c=$('#evcorp');if(!f||!c)return;const corp=z==='Corporal';f.hidden=corp;c.hidden=!corp;$('#ev_facial').hidden=corp;$('#ev_corp').hidden=!corp;};
+
+function bindSesionForm(cid,sid){
+  const s=sid?sesiones.find(x=>x.id===sid):null;
+  const c=cliente(cid);
+  setTimeout(()=>initSig(s&&s.consentimiento&&s.consentimiento.firma),40);
+  $('#sform').addEventListener('submit',async e=>{
+    e.preventDefault();
+    if(!$('#s_proc').value){toast('Elegí el procedimiento');return;}
+    const zona=$('#s_zona').value;
+    const ev={diagnostico:$('#e_diag').value.trim()};
+    if(zona==='Corporal'){Object.assign(ev,{peso:$('#e_peso').value,cintura:$('#e_cintura').value,cadera:$('#e_cadera').value,celulitis:$('#e_celu').value,adiposidad:$('#e_adip').value,estrias:$('#e_estrias').value});}
+    else{Object.assign(ev,{acne:$('#e_acne').value,manchas:$('#e_manchas').value,arrugas:$('#e_arrugas').value,flacidez:$('#e_flac').value,hidratacion:$('#e_hidra').value,sensibilidad:$('#e_sens').value});}
+    const obj={
+      id:sid||uid('s_'),clienteId:cid,
+      fecha:$('#s_fecha').value,zona,procedimiento:$('#s_proc').value,profesional:$('#s_prof').value.trim(),
+      precio:Number($('#s_precio').value)||0,duracion:Number($('#s_dur').value)||0,
+      _ejemplo:s?!!s._ejemplo:false,createdAt:s?s.createdAt:null,
+      postCuidadoEnviado:s?!!s.postCuidadoEnviado:false,recordatorioEnviado:s?!!s.recordatorioEnviado:false,
+      evaluacion:ev,
+      consentimiento:{aceptado:$('#c_acepta').checked,imagen:$('#c_imagen').checked,firma:sigData(),fechaFirma:($('#c_acepta').checked?nowISO():(s&&s.consentimiento&&s.consentimiento.fechaFirma)||'')},
+      seguimiento:{productos:$('#g_prod').value.trim(),parametros:$('#g_param').value.trim(),reaccion:$('#g_react').value,recomendaciones:$('#g_reco').value.trim(),proximaCita:$('#g_prox').value,procedimientoProx:$('#g_proxproc').value.trim(),realizado:sid?$('#g_realizado').checked:false}
+    };
+    try{await saveSesion(obj);toast('Sesión guardada');location.hash='#/cliente/'+cid;}
+    catch(err){toast('Error al guardar');console.error(err);}
+  });
+}
+
+function bindConfig(){
+  $('#cfgform').addEventListener('submit',async e=>{
+    e.preventDefault();
+    await saveConfig({centro:$('#cfg_centro').value.trim(),profesional:$('#cfg_prof').value.trim()});
+    toast('Configuración guardada');location.hash='#/';
+  });
+}
+
+/* ---------- ACTIONS ---------- */
+window.markPost=async function(sid){const s=sesiones.find(x=>x.id===sid);if(!s)return;s.postCuidadoEnviado=true;await saveSesion(s);toast('Marcado como enviado');render();};
+window.markRecord=async function(sid){const s=sesiones.find(x=>x.id===sid);if(!s)return;s.recordatorioEnviado=true;await saveSesion(s);toast('Marcado como avisado');render();};
+window.confirmDel=function(id){const c=cliente(id);showModal('Eliminar ficha',`Se borrará <b>${esc(c.nombre)}</b> y sus ${sesionesDe(id).length} sesiones. Esta acción no se puede deshacer.`,'Eliminar',async()=>{await delCliente(id);closeModal();toast('Ficha eliminada');location.hash='#/clientes';});};
+window.confirmDelSes=function(sid,cid){showModal('Eliminar sesión','Se borrará esta sesión de la clienta. No se puede deshacer.','Eliminar',async()=>{await delSesion(sid);closeModal();toast('Sesión eliminada');location.hash='#/cliente/'+cid;});};
+
+function showModal(title,body,okLabel,onOk){
+  const root=$('#modal-root');
+  root.innerHTML=`<div class="scrim" id="scrim"><div class="modal"><div class="mh">${title}</div><div class="mb">${body}</div><div class="mf"><button class="btn ghost" id="mcancel">Cancelar</button><button class="btn danger" id="mok">${okLabel}</button></div></div></div>`;
+  $('#mcancel').onclick=closeModal;$('#scrim').onclick=e=>{if(e.target.id==='scrim')closeModal();};$('#mok').onclick=onOk;
+}
+function closeModal(){$('#modal-root').innerHTML='';}
+
+/* ---------- THEME ---------- */
+function setTheme(t){try{localStorage.setItem('cubixdoc_theme',t);}catch(e){}
+  if(t==='system')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t);
+  document.querySelectorAll('[data-theme-btn]').forEach(b=>b.classList.toggle('on',b.dataset.themeBtn===t));}
+document.querySelectorAll('[data-theme-btn]').forEach(b=>b.onclick=()=>setTheme(b.dataset.themeBtn));
+(function(){let t='system';try{t=localStorage.getItem('cubixdoc_theme')||'system';}catch(e){}setTheme(t);})();
+
+/* ---------- DEMO DATA ---------- */
+window.seedDemo=async function(){
+  if(clientes.some(c=>c._ejemplo)){toast('Ya hay datos de ejemplo');return;}
+  const today=new Date();const iso=d=>new Date(today.getTime()-d*864e5).toISOString().slice(0,10);
+  const fut=d=>new Date(today.getTime()+d*864e5).toISOString().slice(0,10);
+  const C=[
+    {id:uid('c_'),nombre:'Sofía Herrera',telefono:'5493411112233',email:'sofia@example.com',ocupacion:'Docente',origen:'Instagram',_ejemplo:true,anamnesis:{fechaNac:'1990-04-12',motivo:'Mejorar textura y luminosidad de la piel',tipoPiel:'Mixta',fototipo:'III',embarazo:'no',solExpo:'Media',antecedentes:[],medFlags:['Anticonceptivos'],alergias:[],protector:true,skincare:'Limpiador + protector solar'}},
+    {id:uid('c_'),nombre:'Valentina Ríos',telefono:'5493415556677',email:'',ocupacion:'Diseñadora',origen:'Recomendación',_ejemplo:true,anamnesis:{fechaNac:'1985-09-30',motivo:'Tratamiento reductor y anticelulítico',tipoPiel:'Normal',fototipo:'IV',embarazo:'no',solExpo:'Alta / cama solar',antecedentes:['Várices'],medFlags:[],alergias:['Níquel'],protector:false}},
+    {id:uid('c_'),nombre:'Camila Ortiz',telefono:'5493418889900',email:'camila@example.com',ocupacion:'Abogada',origen:'Google',_ejemplo:true,anamnesis:{fechaNac:'1996-01-20',motivo:'Acné y control de brotes',tipoPiel:'Grasa',fototipo:'II',embarazo:'embarazo',solExpo:'Baja',antecedentes:[],medFlags:[],alergias:[],herpes:true}}
+  ];
+  const S=[
+    {clienteId:C[0].id,fecha:iso(52),zona:'Facial',procedimiento:'Limpieza facial profunda',profesional:'',precio:18000,evaluacion:{acne:'Leve',hidratacion:'Deshidratada',diagnostico:'Piel deshidratada, comedones zona T'},consentimiento:{aceptado:true,imagen:true,firma:''},seguimiento:{productos:'Ácido mandélico',recomendaciones:'FPS 50 diario',proximaCita:iso(24),realizado:true,procedimientoProx:'Hidrafacial'}},
+    {clienteId:C[0].id,fecha:iso(24),zona:'Facial',procedimiento:'Hidrafacial',profesional:'',precio:26000,evaluacion:{hidratacion:'Normal',diagnostico:'Mejora de textura'},consentimiento:{aceptado:true,imagen:true,firma:''},seguimiento:{productos:'Vitamina C',recomendaciones:'Mantener rutina',proximaCita:fut(2),procedimientoProx:'Peeling químico',realizado:false}},
+    {clienteId:C[1].id,fecha:iso(70),zona:'Corporal',procedimiento:'Ultracavitación',profesional:'',precio:22000,evaluacion:{celulitis:'II',adiposidad:'Moderada',cintura:'82',diagnostico:'Adiposidad localizada abdomen'},consentimiento:{aceptado:true,imagen:false,firma:''},seguimiento:{parametros:'3MHz 15min',recomendaciones:'Hidratación 2L/día',proximaCita:iso(60),realizado:false,procedimientoProx:'Radiofrecuencia corporal'}},
+    {clienteId:C[1].id,fecha:iso(2),zona:'Corporal',procedimiento:'Radiofrecuencia corporal',profesional:'',precio:24000,evaluacion:{celulitis:'II',diagnostico:'Buena respuesta'},consentimiento:{aceptado:true,imagen:false,firma:''},seguimiento:{recomendaciones:'Beber agua, evitar sol',proximaCita:fut(1),procedimientoProx:'Maderoterapia',realizado:false}},
+    {clienteId:C[2].id,fecha:iso(10),zona:'Facial',procedimiento:'Limpieza facial profunda',profesional:'',precio:18000,evaluacion:{acne:'Moderado',sensibilidad:'Leve',diagnostico:'Acné inflamatorio leve. ⚠️ Embarazo: evitar activos.'},consentimiento:{aceptado:true,imagen:false,firma:''},seguimiento:{recomendaciones:'Limpieza suave, sin ácidos',proximaCita:fut(3),procedimientoProx:'Máscara LED',realizado:false}}
+  ].map(s=>({id:uid('s_'),profesional:'',duracion:0,postCuidadoEnviado:false,recordatorioEnviado:false,_ejemplo:true,...s}));
+  if(mode==='db'){for(const c of C){const{id,...b}=c;await DBNS.collection('clientes').doc(id).set({...b,createdAt:nowISO(),updatedAt:nowISO()});}for(const s of S){const{id,...b}=s;await DBNS.collection('sesiones').doc(id).set({...b,createdAt:nowISO(),updatedAt:nowISO()});}}
+  else{clientes.push(...C.map(c=>({...c,createdAt:nowISO(),updatedAt:nowISO()})));sesiones.push(...S.map(s=>({...s,createdAt:nowISO(),updatedAt:nowISO()})));persistLocal();onData();}
+  toast('Datos de ejemplo cargados');if(!location.hash.startsWith('#/clientes'))location.hash='#/';
+};
+window.clearDemo=async function(){
+  const dc=clientes.filter(c=>c._ejemplo),ds=sesiones.filter(s=>s._ejemplo);
+  if(!dc.length&&!ds.length){toast('No hay datos de ejemplo');return;}
+  if(mode==='db'){for(const s of ds)await DBNS.collection('sesiones').doc(s.id).delete();for(const c of dc)await DBNS.collection('clientes').doc(c.id).delete();}
+  else{clientes=clientes.filter(c=>!c._ejemplo);sesiones=sesiones.filter(s=>!s._ejemplo);persistLocal();onData();}
+  toast('Datos de ejemplo borrados');render();
+};
+
+/* ---------- GO ---------- */
+initStore();
+</script>
