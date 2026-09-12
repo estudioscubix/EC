@@ -334,28 +334,28 @@ async function delServicio(id){
 
 /* Catálogo real de NC (Base_Pacientes_NC · hoja Servicios) */
 const CATALOGO_NC=[
-  {nombre:'Consulta médica',grupo:'Consulta',categoria:'Consulta',precio:35000,duracion:15,destacado:false,pack:false},
-  {nombre:'Limpieza facial profunda con extracciones',grupo:'Facial',categoria:'Limpieza',precio:65000,duracion:60,destacado:true,pack:false},
-  {nombre:'Peeling químico',grupo:'Facial',categoria:'Peeling médico',precio:60000,duracion:60,destacado:false,pack:false},
-  {nombre:'Microneedling (Dermapen®)',grupo:'Facial',categoria:'Inyectable',precio:68000,duracion:50,destacado:false,pack:false},
-  {nombre:'Exosomas con microneedling (Dermapen®)',grupo:'Facial',categoria:'Inyectable',precio:75000,duracion:50,destacado:false,pack:false},
-  {nombre:'Plasma rico en plaquetas — rostro, cuello y escote',grupo:'Facial',categoria:'Inyectable',precio:78000,duracion:60,destacado:true,pack:false},
-  {nombre:'Mesoterapia facial nacional (1 sesión)',grupo:'Facial',categoria:'Inyectable',precio:50000,duracion:40,destacado:false,pack:false},
-  {nombre:'Mesoterapia facial Inbiotec® Face & Shine (1 sesión)',grupo:'Facial',categoria:'Inyectable',precio:60000,duracion:40,destacado:false,pack:false},
-  {nombre:'Toxina botulínica Botox® 1 zona — hasta 20 U',grupo:'Facial',categoria:'Inyectable',precio:98000,duracion:20,destacado:true,pack:false},
-  {nombre:'Toxina botulínica Botox® 2 zonas — hasta 40 U',grupo:'Facial',categoria:'Inyectable',precio:190000,duracion:30,destacado:true,pack:false},
-  {nombre:'Toxina botulínica Botox® 3 zonas — hasta 55 U',grupo:'Facial',categoria:'Inyectable',precio:235000,duracion:30,destacado:true,pack:false},
-  {nombre:'Toxina botulínica (Xeomin®) bruxismo — hasta 60 U',grupo:'Facial',categoria:'Inyectable',precio:245000,duracion:30,destacado:false,pack:false},
-  {nombre:'Plasma rico en plaquetas capilar',grupo:'Capilar',categoria:'Inyectable',precio:78000,duracion:60,destacado:true,pack:false},
-  {nombre:'Mesoterapia capilar (1 sesión)',grupo:'Capilar',categoria:'Inyectable',precio:50000,duracion:30,destacado:false,pack:false},
-  {nombre:'Mesoterapia corporal nacional por zona (1 sesión)',grupo:'Corporal',categoria:'Inyectable',precio:50000,duracion:30,destacado:false,pack:false},
-  {nombre:'Fosfatidilcolina (lipólisis química) por zona (1 sesión)',grupo:'Corporal',categoria:'Inyectable',precio:65000,duracion:30,destacado:false,pack:false},
-  {nombre:'PACK 3 sesiones — mesoterapia capilar',grupo:'Capilar',categoria:'Inyectable',precio:130000,duracion:30,destacado:false,pack:true},
-  {nombre:'PACK 3 PRP + 3 mesoterapia',grupo:'Facial',categoria:'Inyectable',precio:310000,duracion:60,destacado:false,pack:true},
-  {nombre:'PACK 3 sesiones — mesoterapia facial Inbiotec® Face & Shine',grupo:'Facial',categoria:'Inyectable',precio:163000,duracion:40,destacado:false,pack:true},
-  {nombre:'PACK 3 sesiones — mesoterapia nacional',grupo:'Facial',categoria:'Inyectable',precio:130000,duracion:40,destacado:false,pack:true},
-  {nombre:'PACK 3 sesiones — plasma rico en plaquetas',grupo:'Facial',categoria:'Inyectable',precio:199000,duracion:60,destacado:false,pack:true},
-  {nombre:'PACK 3 sesiones — fosfatidilcolina por zona',grupo:'Corporal',categoria:'Inyectable',precio:175000,duracion:30,destacado:false,pack:true}
+  {nombre:'Consulta médica',grupo:'Consulta',categoria:'Consulta',precio:35000,duracion:15,destacado:false,pack:false,descripcion:'Espacio de evaluación personalizada donde se analizan las necesidades, objetivos y características de cada paciente para diseñar un plan de tratamiento individualizado. Se realiza una valoración facial, corporal o capilar, se explican las opciones terapéuticas y se define el protocolo más adecuado. Duración: 15 min. Ideal para: pacientes que desean orientación profesional antes de iniciar un tratamiento estético.'},
+  {nombre:'Limpieza facial profunda con extracciones',grupo:'Facial',categoria:'Limpieza',precio:65000,duracion:60,destacado:true,pack:false,descripcion:'Higiene facial profesional que elimina impurezas, células muertas y puntos negros, dejando la piel más limpia, luminosa y saludable. Incluye exfoliación con punta de diamante, extracción de comedones, alta frecuencia y mascarilla adaptada. Beneficios: • Limpia los poros en profundidad • Mejora textura y luminosidad • Previene puntos negros y brotes de acné • Potencia la absorción de los productos. Duración: 60 min. Ideal para: todo tipo de pieles, en especial con poros obstruidos, exceso de oleosidad o aspecto apagado.'},
+  {nombre:'Peeling químico',grupo:'Facial',categoria:'Peeling médico',precio:60000,duracion:60,destacado:false,pack:false,descripcion:'Combina exfoliación mecánica con punta de diamante y un peeling químico personalizado para renovar la piel en profundidad, mejorar la textura, aportar luminosidad y favorecer la regeneración celular. Beneficios: • Unifica el tono • Atenúa manchas, marcas de acné y líneas finas • Reduce poros dilatados • Devuelve luminosidad y suavidad. Duración: 45 a 60 min. Ideal para: pieles con manchas, poros dilatados, marcas de acné, textura irregular o aspecto opaco.'},
+  {nombre:'Microneedling (Dermapen®)',grupo:'Facial',categoria:'Inyectable',precio:68000,duracion:50,destacado:false,pack:false,descripcion:'Bioestimulación con microagujas que crean microcanales en la piel, estimulando la producción natural de colágeno y elastina y favoreciendo la penetración de activos. Beneficios: • Mejora firmeza, textura y luminosidad • Atenúa líneas de expresión y arrugas finas • Disminuye cicatrices de acné, poros dilatados y estrías • Favorece la regeneración cutánea. Duración: 45 a 60 min. Ideal para: signos de envejecimiento, cicatrices de acné, poros dilatados, manchas o textura irregular.'},
+  {nombre:'Exosomas con microneedling (Dermapen®)',grupo:'Facial',categoria:'Inyectable',precio:75000,duracion:50,destacado:false,pack:false,descripcion:'Regeneración celular avanzada que combina microneedling con exosomas, mensajeros celulares ricos en factores bioactivos que reparan la piel desde el interior. Beneficios: • Estimula intensamente colágeno y elastina • Mejora manchas, cicatrices, poros y textura • Atenúa líneas de expresión y aporta firmeza • Favorece una recuperación más rápida. Duración: 60 min. Ideal para: signos de envejecimiento, manchas, cicatrices, pérdida de firmeza o regeneración cutánea profunda.'},
+  {nombre:'Plasma rico en plaquetas — rostro, cuello y escote',grupo:'Facial',categoria:'Inyectable',precio:78000,duracion:60,destacado:true,pack:false,descripcion:'Medicina regenerativa que utiliza los factores de crecimiento de tu propia sangre para estimular colágeno, elastina y ácido hialurónico, con una regeneración natural de la piel. Beneficios: • Rejuvenece de forma natural • Mejora firmeza, elasticidad y luminosidad • Atenúa líneas de expresión y arrugas finas • Estimula la regeneración celular. Duración: 60 min. Ideal para: signos de envejecimiento, pérdida de firmeza, falta de luminosidad o prevención del envejecimiento.'},
+  {nombre:'Mesoterapia facial nacional (1 sesión)',grupo:'Facial',categoria:'Inyectable',precio:50000,duracion:40,destacado:false,pack:false,descripcion:'Tratamiento personalizado con cócteles de vitaminas, ácido hialurónico y antioxidantes, ideal para hidratación y revitalización. Beneficios: • Hidrata en profundidad • Aporta luminosidad • Mejora textura, firmeza y elasticidad • Previene los primeros signos del envejecimiento. Duración: 30 a 45 min. Ideal para: pieles deshidratadas, apagadas o con pérdida de luminosidad.'},
+  {nombre:'Mesoterapia facial Inbiotec® Face & Shine (1 sesión)',grupo:'Facial',categoria:'Inyectable',precio:60000,duracion:40,destacado:false,pack:false,descripcion:'Bioestimulación avanzada con principios activos de alta calidad. Según cada paciente se elige la fórmula Face (firmeza y rejuvenecimiento) o Shine (luminosidad y unificación del tono). Beneficios: • Estimula colágeno y elastina • Hidrata en profundidad • Atenúa líneas, manchas y fotoenvejecimiento • Piel más firme y luminosa. Duración: 30 a 45 min. Ideal para: pérdida de firmeza, deshidratación, manchas o fotoenvejecimiento.'},
+  {nombre:'Toxina botulínica Botox® 1 zona — hasta 20 U',grupo:'Facial',categoria:'Inyectable',precio:98000,duracion:20,destacado:true,pack:false,descripcion:'La toxina botulínica previene y suaviza las líneas de expresión dinámicas, logrando un aspecto relajado y natural sin perder expresividad. Beneficios: • Suaviza frente, entrecejo y patas de gallo • Previene nuevas arrugas • Rostro descansado y rejuvenecido. Duración del procedimiento: 20 a 30 min. Efecto: se observa a los 3-4 días, máximo a los 14 días; dura 3 a 4 meses. Importante: se utiliza Botox®; reevaluación a los 14 días y, si es necesario, retoque. Pasado ese período no se realizan retoques.'},
+  {nombre:'Toxina botulínica Botox® 2 zonas — hasta 40 U',grupo:'Facial',categoria:'Inyectable',precio:190000,duracion:30,destacado:true,pack:false,descripcion:'Toxina botulínica que relaja de forma selectiva los músculos responsables de las líneas de expresión. Zonas: frente, entrecejo, patas de gallo, sonrisa gingival y mentón (según evaluación médica). Beneficios: • Suaviza líneas dinámicas • Previene nuevas arrugas • Rejuvenece sin modificar la expresión. Duración: 20 a 30 min. Resultados: 3-4 días, máximo a los 14; dura 3 a 4 meses. Importante: se utiliza Botox®; reevaluación a los 14 días, retoques solo dentro de ese período.'},
+  {nombre:'Toxina botulínica Botox® 3 zonas — hasta 55 U',grupo:'Facial',categoria:'Inyectable',precio:235000,duracion:30,destacado:true,pack:false,descripcion:'Toxina botulínica que relaja de forma selectiva los músculos responsables de las líneas de expresión. Zonas: frente, entrecejo, patas de gallo, sonrisa gingival y mentón (según evaluación médica). Beneficios: • Suaviza líneas dinámicas • Previene nuevas arrugas • Rejuvenece sin modificar la expresión. Duración: 20 a 30 min. Resultados: 3-4 días, máximo a los 14; dura 3 a 4 meses. Importante: se utiliza Botox®; reevaluación a los 14 días, retoques solo dentro de ese período.'},
+  {nombre:'Toxina botulínica (Xeomin®) bruxismo — hasta 60 U',grupo:'Facial',categoria:'Inyectable',precio:245000,duracion:30,destacado:false,pack:false,descripcion:'Relaja los músculos del bruxismo, disminuyendo la fuerza al apretar los dientes sin afectar masticación ni habla; puede afinar el contorno mandibular por hipertrofia del masetero. Beneficios: • Disminuye dolor de mandíbula, cuello y cabeza • Reduce tensión y protege las piezas dentarias • Mejora la calidad de vida • Puede afinar el rostro. Duración: 20 min. Resultados: 3 a 7 días, máximo a los 14; dura 3 a 4 meses. Importante: se utiliza Xeomin®; reevaluación a los 14 días, retoques solo dentro de ese período.'},
+  {nombre:'Plasma rico en plaquetas capilar',grupo:'Capilar',categoria:'Inyectable',precio:78000,duracion:60,destacado:true,pack:false,descripcion:'Medicina regenerativa con factores de crecimiento de tu propia sangre para estimular los folículos pilosos y favorecer el crecimiento del cabello. Beneficios: • Disminuye la caída • Estimula cabello más fuerte y saludable • Mejora densidad, grosor y calidad • Nutre y regenera los folículos. Duración: 60 min. Ideal para: caída de cabello, afinamiento o alopecia inicial a moderada.'},
+  {nombre:'Mesoterapia capilar (1 sesión)',grupo:'Capilar',categoria:'Inyectable',precio:50000,duracion:30,destacado:false,pack:false,descripcion:'Microinyecciones con principios activos en el cuero cabelludo para nutrir y estimular los folículos; fórmula personalizada según el tipo de caída. Beneficios: • Disminuye la caída • Estimula el crecimiento • Mejora densidad, grosor y calidad • Fortalece desde la raíz. Duración: 20 a 30 min. Ideal para: caída de cabello, afinamiento, alopecia androgenética o efluvio telógeno.'},
+  {nombre:'Mesoterapia corporal nacional por zona (1 sesión)',grupo:'Corporal',categoria:'Inyectable',precio:50000,duracion:30,destacado:false,pack:false,descripcion:'Microinyecciones con principios activos para mejorar la calidad de la piel y tratar alteraciones corporales; protocolo personalizado. Beneficios: • Mejora la apariencia de la celulitis • Favorece firmeza y elasticidad • Estimula el drenaje y reduce la retención • Complementa la remodelación corporal. Duración: 20 a 40 min. Ideal para: celulitis, flacidez, retención de líquidos. Importante: mejores resultados con protocolo de varias sesiones, hidratación, alimentación y actividad física.'},
+  {nombre:'Fosfatidilcolina (lipólisis química) por zona (1 sesión)',grupo:'Corporal',categoria:'Inyectable',precio:65000,duracion:30,destacado:false,pack:false,descripcion:'Inyectable lipolítico que reduce depósitos de grasa localizada, mejorando el contorno corporal sin cirugía. Beneficios: • Reduce grasa localizada resistente a dieta y ejercicio • Define el contorno • Mínimamente invasivo y ambulatorio • Abdomen, flancos, muslos, papada y otras zonas según evaluación. Duración: 20 a 30 min. Ideal para: adiposidad localizada. Importante: no es para bajar de peso; mejores resultados con protocolo de varias sesiones, hidratación, alimentación y actividad física.'},
+  {nombre:'PACK 3 sesiones — mesoterapia capilar',grupo:'Capilar',categoria:'Inyectable',precio:130000,duracion:30,destacado:false,pack:true,descripcion:'PACK de 3 sesiones (se abona la totalidad en la 1ª sesión). Microinyecciones en el cuero cabelludo para nutrir y estimular los folículos: disminuye la caída y mejora densidad, grosor y calidad del cabello.'},
+  {nombre:'PACK 3 PRP + 3 mesoterapia',grupo:'Facial',categoria:'Inyectable',precio:310000,duracion:60,destacado:false,pack:true,descripcion:'PACK de 3 sesiones (se abona la totalidad en la 1ª sesión). Las sesiones pueden ser faciales o capilares. El PRP se realiza 1 vez por mes y, entre cada PRP, se realiza una sesión de mesoterapia. Ver la descripción de ambos tratamientos.'},
+  {nombre:'PACK 3 sesiones — mesoterapia facial Inbiotec® Face & Shine',grupo:'Facial',categoria:'Inyectable',precio:163000,duracion:40,destacado:false,pack:true,descripcion:'PACK de 3 sesiones (se abona la totalidad en la 1ª sesión). Bioestimulación avanzada Face & Shine: estimula colágeno y elastina, hidrata en profundidad y atenúa líneas, manchas y fotoenvejecimiento.'},
+  {nombre:'PACK 3 sesiones — mesoterapia nacional',grupo:'Facial',categoria:'Inyectable',precio:130000,duracion:40,destacado:false,pack:true,descripcion:'PACK de 3 sesiones (se abona la totalidad en la 1ª sesión). Bioestimulación con microinyecciones de ácido hialurónico, vitaminas, aminoácidos y antioxidantes: hidrata, aporta luminosidad y mejora textura, firmeza y elasticidad.'},
+  {nombre:'PACK 3 sesiones — plasma rico en plaquetas',grupo:'Facial',categoria:'Inyectable',precio:199000,duracion:60,destacado:false,pack:true,descripcion:'PACK de 3 sesiones (se abona la totalidad en la 1ª sesión). Medicina regenerativa con factores de crecimiento de tu propia sangre; puede aplicarse en rostro o cuero cabelludo, favoreciendo colágeno y revitalización celular.'},
+  {nombre:'PACK 3 sesiones — fosfatidilcolina por zona',grupo:'Corporal',categoria:'Inyectable',precio:175000,duracion:30,destacado:false,pack:true,descripcion:'PACK de 3 sesiones (se abona la totalidad en la 1ª sesión). Inyectable lipolítico que reduce grasa localizada y mejora el contorno corporal sin cirugía; abdomen, flancos, muslos, papada y otras zonas según evaluación.'}
 ];
 
 /* ---------- CLINICAL ALERTS (contraindicaciones) ---------- */
@@ -835,14 +835,17 @@ function viewServicios(){
   const secc=orden.map(g=>{const arr=byG[g];if(!arr)return '';
     return `<div class="panel" style="margin-bottom:16px"><div class="ph"><h3>${esc(g)}</h3><span class="pill neutral tnum">${arr.length}</span></div>
     <div class="rowlist">${arr.sort((a,b)=>b.precio-a.precio).map(s=>`
-      <div class="rowlink" style="cursor:default">
+      <div style="border-bottom:1px solid var(--border)">
+       <div class="rowlink" style="cursor:default;border-bottom:none">
         <div class="avatar" style="background:${s.pack?'var(--accent-soft)':'var(--surface-2)'};color:var(--accent)">${s.pack?'×3':'1'}</div>
         <div class="info"><div class="nm">${s.destacado?'<span style="color:var(--warn)">★</span> ':''}${esc(s.nombre)} ${s.activo===false?'<span class="pill neutral">inactivo</span>':''}</div>
-          <div class="mt">${esc(s.categoria||'')}${s.duracion?' · '+s.duracion+' min':''}${s.pack?' · Pack':''}</div></div>
+          <div class="mt">${esc(s.categoria||'')}${s.duracion?' · '+s.duracion+' min':''}${s.pack?' · Pack':''}${s.precioActualizado?' · precio act. '+fmtD(s.precioActualizado):''}</div></div>
         <div style="display:flex;gap:12px;align-items:center;flex-shrink:0">
           <div class="rt tnum" style="font-weight:700;color:var(--text)">${money(s.precio)}</div>
           <a class="btn ghost sm" href="#/servicios/${s.id}">Editar</a>
         </div>
+       </div>
+       ${s.descripcion?`<details style="padding:0 18px 12px 72px"><summary style="cursor:pointer;color:var(--accent);font-size:12.5px;font-weight:600;list-style:none">Ver descripción</summary><p style="font-size:13px;color:var(--text-2);margin-top:8px;line-height:1.55">${esc(s.descripcion)}</p></details>`:''}
       </div>`).join('')}</div></div>`;}).join('');
   return `
   <div class="topbar">
@@ -865,6 +868,8 @@ function viewServicioForm(id){
       <div class="field"><label for="v_cat">Categoría</label><input id="v_cat" value="${esc(s?.categoria||'')}" placeholder="Inyectable, Limpieza…"></div>
       <div class="field"><label for="v_precio">Precio ($) *</label><input id="v_precio" type="number" min="0" inputmode="numeric" required value="${esc(s?.precio??'')}"></div>
       <div class="field"><label for="v_dur">Duración (min)</label><input id="v_dur" type="number" min="0" inputmode="numeric" value="${esc(s?.duracion??'')}"></div>
+      <div class="field"><label for="v_precioupd">Última actualización de precio</label><input id="v_precioupd" type="date" value="${esc(s?.precioActualizado||'')}"><span class="help">Se completa sola al cambiar el precio.</span></div>
+      <div class="field full"><label for="v_desc">Descripción (para consentimiento / info al paciente)</label><textarea id="v_desc" style="min-height:130px">${esc(s?.descripcion||'')}</textarea></div>
       <div class="field full" style="flex-direction:row;flex-wrap:wrap;gap:8px">
         <label class="chk"><input type="checkbox" id="v_dest" ${s?.destacado?'checked':''}>★ Destacado</label>
         <label class="chk"><input type="checkbox" id="v_pack" ${s?.pack?'checked':''}>Es un pack (varias sesiones)</label>
@@ -882,8 +887,12 @@ function bindServicioForm(id){
   $('#svform').addEventListener('submit',async e=>{
     e.preventDefault();
     const nombre=$('#v_nombre').value.trim();if(!nombre){toast('Falta el nombre');return;}
+    const precio=Number($('#v_precio').value)||0;
+    const hoy=new Date().toISOString().slice(0,10);
+    let precioAct=$('#v_precioupd').value||'';
+    if(!s||Number(s.precio)!==precio||!precioAct)precioAct=hoy;
     const obj={id:id||uid('sv_'),nombre,grupo:$('#v_grupo').value,categoria:$('#v_cat').value.trim(),
-      precio:Number($('#v_precio').value)||0,duracion:Number($('#v_dur').value)||0,
+      precio,duracion:Number($('#v_dur').value)||0,descripcion:$('#v_desc').value.trim(),precioActualizado:precioAct,
       destacado:$('#v_dest').checked,pack:$('#v_pack').checked,activo:$('#v_act').checked,
       createdAt:s?s.createdAt:null};
     try{await saveServicio(obj);toast('Servicio guardado');location.hash='#/servicios';}
@@ -893,7 +902,8 @@ function bindServicioForm(id){
 window.confirmDelServ=function(id){const s=servicios.find(x=>x.id===id);showModal('Eliminar servicio',`Se quita <b>${esc(s.nombre)}</b> del catálogo. Las sesiones ya registradas con este tratamiento no se modifican.`,'Eliminar',async()=>{await delServicio(id);closeModal();toast('Servicio eliminado');location.hash='#/servicios';});};
 window.cargarCatalogoNC=async function(){
   if(servicios.length){toast('El catálogo ya tiene servicios');return;}
-  const rows=CATALOGO_NC.map(c=>({id:uid('sv_'),activo:true,...c,createdAt:nowISO(),updatedAt:nowISO()}));
+  const hoy=new Date().toISOString().slice(0,10);
+  const rows=CATALOGO_NC.map(c=>({id:uid('sv_'),activo:true,precioActualizado:hoy,...c,createdAt:nowISO(),updatedAt:nowISO()}));
   if(mode==='db'){for(const r of rows){const{id,...b}=r;await DBNS.collection('servicios').doc(id).set(b);}}
   else{servicios.push(...rows);persistLocal();onData();}
   toast('Catálogo NC cargado ('+rows.length+' servicios)');render();
