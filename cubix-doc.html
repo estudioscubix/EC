@@ -248,13 +248,15 @@ const IC={
   wa:'<path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.4 8.4 0 0 1-4-1L3 21l1.9-5A8.4 8.4 0 0 1 4 12 8.38 8.38 0 0 1 12.5 3.5 8.38 8.38 0 0 1 21 11.5z"/>',
   add:'<circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>',
   cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
-  heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>'
+  heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  star:'<path d="M12 2l3 6.5 7 .9-5 4.8 1.3 7L12 18l-6.6 3.2L6.7 14 1.7 9.4l7-.9z"/>'
 };
 function icon(n){return '<svg viewBox="0 0 24 24">'+(IC[n]||'')+'</svg>';}
 
 /* ---------- STATE ---------- */
-let DBNS=null, mode='local', clientes=[], sesiones=[], config={};
-const LS={c:'cubixdoc_clientes',s:'cubixdoc_sesiones',cfg:'cubixdoc_config'};
+let DBNS=null, mode='local', clientes=[], sesiones=[], servicios=[], config={};
+const LS={c:'cubixdoc_clientes',s:'cubixdoc_sesiones',serv:'cubixdoc_servicios',cfg:'cubixdoc_config'};
 const DIAS_INACTIVA=60;
 
 const PROCS=["Limpieza facial profunda","Hidrafacial","Peeling químico","Dermaplaning","Microneedling","Radiofrecuencia facial","Máscara LED","Depilación láser","Depilación con cera","Masaje reductor","Drenaje linfático","Radiofrecuencia corporal","Ultracavitación","Presoterapia","Tratamiento anti-celulitis","Maderoterapia","Diseño de cejas","Lifting de pestañas"];
@@ -285,16 +287,17 @@ async function initStore(){
     try{
       DBNS.collection('clientes').onSnapshot(snap=>{clientes=snap.docs.filter(d=>d.exists).map(d=>({id:d.id,...d.data()}));onData();},e=>console.warn('db clientes',e));
       DBNS.collection('sesiones').onSnapshot(snap=>{sesiones=snap.docs.filter(d=>d.exists).map(d=>({id:d.id,...d.data()}));onData();},e=>console.warn('db sesiones',e));
+      DBNS.collection('servicios').onSnapshot(snap=>{servicios=snap.docs.filter(d=>d.exists).map(d=>({id:d.id,...d.data()}));onData();},e=>console.warn('db servicios',e));
       DBNS.doc('config/general').onSnapshot(snap=>{config=snap.exists?snap.data():{};onData();},()=>{});
     }catch(e){fallbackLocal();}
   }else{fallbackLocal();}
 }
 function fallbackLocal(){
   mode='local';$('#storemode').textContent='● Local (este navegador)';$('#storemode').style.color='var(--warn)';
-  try{clientes=JSON.parse(localStorage.getItem(LS.c)||'[]');sesiones=JSON.parse(localStorage.getItem(LS.s)||'[]');config=JSON.parse(localStorage.getItem(LS.cfg)||'{}');}catch(e){clientes=[];sesiones=[];config={};}
+  try{clientes=JSON.parse(localStorage.getItem(LS.c)||'[]');sesiones=JSON.parse(localStorage.getItem(LS.s)||'[]');servicios=JSON.parse(localStorage.getItem(LS.serv)||'[]');config=JSON.parse(localStorage.getItem(LS.cfg)||'{}');}catch(e){clientes=[];sesiones=[];servicios=[];config={};}
   onData();
 }
-function persistLocal(){try{localStorage.setItem(LS.c,JSON.stringify(clientes));localStorage.setItem(LS.s,JSON.stringify(sesiones));localStorage.setItem(LS.cfg,JSON.stringify(config));}catch(e){}}
+function persistLocal(){try{localStorage.setItem(LS.c,JSON.stringify(clientes));localStorage.setItem(LS.s,JSON.stringify(sesiones));localStorage.setItem(LS.serv,JSON.stringify(servicios));localStorage.setItem(LS.cfg,JSON.stringify(config));}catch(e){}}
 
 async function saveCliente(c){
   c.updatedAt=nowISO();if(!c.createdAt)c.createdAt=nowISO();
@@ -319,6 +322,41 @@ async function saveConfig(cfg){
   if(mode==='db'){await DBNS.doc('config/general').set(cfg);}
   else{persistLocal();onData();}
 }
+async function saveServicio(v){
+  v.updatedAt=nowISO();if(!v.createdAt)v.createdAt=nowISO();
+  if(mode==='db'){const{id,...body}=v;await DBNS.collection('servicios').doc(id).set(body);}
+  else{const i=servicios.findIndex(x=>x.id===v.id);if(i>=0)servicios[i]=v;else servicios.push(v);persistLocal();onData();}
+}
+async function delServicio(id){
+  if(mode==='db'){await DBNS.collection('servicios').doc(id).delete();}
+  else{servicios=servicios.filter(s=>s.id!==id);persistLocal();onData();}
+}
+
+/* Catálogo real de NC (Base_Pacientes_NC · hoja Servicios) */
+const CATALOGO_NC=[
+  {nombre:'Consulta médica',grupo:'Consulta',categoria:'Consulta',precio:35000,duracion:15,destacado:false,pack:false},
+  {nombre:'Limpieza facial profunda con extracciones',grupo:'Facial',categoria:'Limpieza',precio:65000,duracion:60,destacado:true,pack:false},
+  {nombre:'Peeling químico',grupo:'Facial',categoria:'Peeling médico',precio:60000,duracion:60,destacado:false,pack:false},
+  {nombre:'Microneedling (Dermapen®)',grupo:'Facial',categoria:'Inyectable',precio:68000,duracion:50,destacado:false,pack:false},
+  {nombre:'Exosomas con microneedling (Dermapen®)',grupo:'Facial',categoria:'Inyectable',precio:75000,duracion:50,destacado:false,pack:false},
+  {nombre:'Plasma rico en plaquetas — rostro, cuello y escote',grupo:'Facial',categoria:'Inyectable',precio:78000,duracion:60,destacado:true,pack:false},
+  {nombre:'Mesoterapia facial nacional (1 sesión)',grupo:'Facial',categoria:'Inyectable',precio:50000,duracion:40,destacado:false,pack:false},
+  {nombre:'Mesoterapia facial Inbiotec® Face & Shine (1 sesión)',grupo:'Facial',categoria:'Inyectable',precio:60000,duracion:40,destacado:false,pack:false},
+  {nombre:'Toxina botulínica Botox® 1 zona — hasta 20 U',grupo:'Facial',categoria:'Inyectable',precio:98000,duracion:20,destacado:true,pack:false},
+  {nombre:'Toxina botulínica Botox® 2 zonas — hasta 40 U',grupo:'Facial',categoria:'Inyectable',precio:190000,duracion:30,destacado:true,pack:false},
+  {nombre:'Toxina botulínica Botox® 3 zonas — hasta 55 U',grupo:'Facial',categoria:'Inyectable',precio:235000,duracion:30,destacado:true,pack:false},
+  {nombre:'Toxina botulínica (Xeomin®) bruxismo — hasta 60 U',grupo:'Facial',categoria:'Inyectable',precio:245000,duracion:30,destacado:false,pack:false},
+  {nombre:'Plasma rico en plaquetas capilar',grupo:'Capilar',categoria:'Inyectable',precio:78000,duracion:60,destacado:true,pack:false},
+  {nombre:'Mesoterapia capilar (1 sesión)',grupo:'Capilar',categoria:'Inyectable',precio:50000,duracion:30,destacado:false,pack:false},
+  {nombre:'Mesoterapia corporal nacional por zona (1 sesión)',grupo:'Corporal',categoria:'Inyectable',precio:50000,duracion:30,destacado:false,pack:false},
+  {nombre:'Fosfatidilcolina (lipólisis química) por zona (1 sesión)',grupo:'Corporal',categoria:'Inyectable',precio:65000,duracion:30,destacado:false,pack:false},
+  {nombre:'PACK 3 sesiones — mesoterapia capilar',grupo:'Capilar',categoria:'Inyectable',precio:130000,duracion:30,destacado:false,pack:true},
+  {nombre:'PACK 3 PRP + 3 mesoterapia',grupo:'Facial',categoria:'Inyectable',precio:310000,duracion:60,destacado:false,pack:true},
+  {nombre:'PACK 3 sesiones — mesoterapia facial Inbiotec® Face & Shine',grupo:'Facial',categoria:'Inyectable',precio:163000,duracion:40,destacado:false,pack:true},
+  {nombre:'PACK 3 sesiones — mesoterapia nacional',grupo:'Facial',categoria:'Inyectable',precio:130000,duracion:40,destacado:false,pack:true},
+  {nombre:'PACK 3 sesiones — plasma rico en plaquetas',grupo:'Facial',categoria:'Inyectable',precio:199000,duracion:60,destacado:false,pack:true},
+  {nombre:'PACK 3 sesiones — fosfatidilcolina por zona',grupo:'Corporal',categoria:'Inyectable',precio:175000,duracion:30,destacado:false,pack:true}
+];
 
 /* ---------- CLINICAL ALERTS (contraindicaciones) ---------- */
 function alertas(c){
@@ -403,7 +441,7 @@ window.addEventListener('hashchange',()=>{window.scrollTo(0,0);render();});
 function updateNav(){
   const q=autoQueues();const n=q.post.length+q.record.length+q.react.length;
   const seg=parseHash();const cur=seg[0]||'';
-  const items=[['','dash','Panel',IC.dash],['clientes','clientes','Clientes',IC.users],['automatizaciones','automatizaciones','Automatización',IC.bolt],['config','config','Ajustes',IC.gear]];
+  const items=[['','dash','Panel',IC.dash],['clientes','clientes','Clientes',IC.users],['servicios','servicios','Servicios',IC.list],['automatizaciones','automatizaciones','Automatización',IC.bolt],['config','config','Ajustes',IC.gear]];
   $('#nav').innerHTML=items.map(([r,key,lbl,ic])=>{
     const active=(cur===r)||(cur===''&&r==='')||(cur==='cliente'&&r==='clientes');
     const badge=(key==='automatizaciones'&&n>0)?`<span class="badge">${n}</span>`:'';
@@ -421,6 +459,9 @@ function render(){
   else if(r==='cliente'&&seg[2]==='editar'){inEditor=true;v.innerHTML=viewClienteForm(seg[1]);bindClienteForm(seg[1]);}
   else if(r==='cliente'&&seg[2]==='sesion'){inEditor=true;v.innerHTML=viewSesionForm(seg[1],seg[3]==='nueva'?null:seg[3]);bindSesionForm(seg[1],seg[3]==='nueva'?null:seg[3]);}
   else if(r==='cliente'&&seg[1]){v.innerHTML=viewCliente(seg[1]);}
+  else if(r==='servicios'&&seg[1]==='nuevo'){inEditor=true;v.innerHTML=viewServicioForm(null);bindServicioForm(null);}
+  else if(r==='servicios'&&seg[1]){inEditor=true;v.innerHTML=viewServicioForm(seg[1]);bindServicioForm(seg[1]);}
+  else if(r==='servicios'){v.innerHTML=viewServicios();}
   else if(r==='automatizaciones'){v.innerHTML=viewAuto();}
   else if(r==='config'){inEditor=true;v.innerHTML=viewConfig();bindConfig();}
   else{v.innerHTML=viewDash();bindDash();}
@@ -657,7 +698,7 @@ function viewSesionForm(cid,sid){
       <div class="fb">
         <div class="field"><label for="s_fecha">Fecha *</label><input id="s_fecha" type="date" required value="${esc(s?s.fecha:new Date().toISOString().slice(0,10))}"></div>
         <div class="field"><label for="s_zona">Zona</label><select id="s_zona" onchange="toggleCorp(this.value)">${sel(['Facial','Corporal','Otro'],s?s.zona:'Facial')}</select></div>
-        <div class="field"><label for="s_proc">Procedimiento *</label><select id="s_proc" required>${sel([''].concat(PROCS),s?s.procedimiento:'')}</select></div>
+        <div class="field"><label for="s_proc">Tratamiento *</label><select id="s_proc" required onchange="autofillServ(this.value)">${procOptions(s?s.procedimiento:'')}</select>${serviciosActivos().length?'':'<span class="help">Cargá el catálogo en <a href="#/servicios">Servicios</a> para elegir de la lista real.</span>'}</div>
         <div class="field"><label for="s_prof">Profesional</label><input id="s_prof" value="${esc(s?s.profesional:config.profesional||'')}"></div>
         <div class="field"><label for="s_precio">Precio ($)</label><input id="s_precio" type="number" min="0" inputmode="numeric" value="${esc(s?s.precio:'')}"></div>
         <div class="field"><label for="s_dur">Duración (min)</label><input id="s_dur" type="number" min="0" inputmode="numeric" value="${esc(s?s.duracion:'')}"></div>
@@ -760,6 +801,103 @@ function viewConfig(){
     </div>
   </div></div>`;
 }
+
+/* ---------- SERVICIOS (catálogo) ---------- */
+const GRUPOS=['Consulta','Facial','Capilar','Corporal'];
+function serviciosActivos(){return servicios.filter(s=>s.activo!==false);}
+function procOptions(cur){
+  const act=serviciosActivos();
+  if(!act.length)return sel([''].concat(PROCS),cur);
+  const groups={};act.forEach(s=>{(groups[s.grupo||'Otros']=groups[s.grupo||'Otros']||[]).push(s);});
+  let html='<option value="">— Elegí un tratamiento —</option>';
+  GRUPOS.concat(Object.keys(groups).filter(g=>!GRUPOS.includes(g))).forEach(g=>{
+    if(!groups[g])return;
+    html+=`<optgroup label="${esc(g)}">`+groups[g].sort((a,b)=>b.precio-a.precio).map(s=>`<option value="${esc(s.nombre)}" ${cur===s.nombre?'selected':''}>${esc(s.nombre)} · ${money(s.precio)}</option>`).join('')+'</optgroup>';
+  });
+  if(cur&&!act.some(s=>s.nombre===cur))html+=`<option value="${esc(cur)}" selected>${esc(cur)} (fuera de catálogo)</option>`;
+  return html;
+}
+window.autofillServ=function(nombre){const sv=servicios.find(x=>x.nombre===nombre);if(!sv)return;const p=$('#s_precio'),d=$('#s_dur');if(p&&!p.value)p.value=sv.precio||'';if(d&&!d.value)d.value=sv.duracion||'';};
+
+function viewServicios(){
+  const total=servicios.length;
+  if(!total){
+    return `<div class="topbar"><div><div class="eyebrow">Módulo 1</div><h1>Servicios</h1><p class="sub">El catálogo de tratamientos alimenta los menús de sesión, turnos y cobros.</p></div></div>
+    <div class="panel"><div class="empty"><div class="ei">${icon('list')}</div><h3>Catálogo vacío</h3>
+    <p style="max-width:48ch;margin:0 auto 16px">Cargá el catálogo real de NC (22 tratamientos con precios) o creá los servicios a mano.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn pri" onclick="cargarCatalogoNC()">Cargar catálogo NC</button><a class="btn ghost" href="#/servicios/nuevo">${icon('plus')} Servicio nuevo</a></div></div></div>`;
+  }
+  const act=serviciosActivos().length;
+  const byG={};servicios.forEach(s=>{(byG[s.grupo||'Otros']=byG[s.grupo||'Otros']||[]).push(s);});
+  const orden=GRUPOS.concat(Object.keys(byG).filter(g=>!GRUPOS.includes(g)));
+  const precios=serviciosActivos().map(s=>s.precio).filter(Boolean);
+  const rango=precios.length?money(Math.min(...precios))+' – '+money(Math.max(...precios)):'—';
+  const secc=orden.map(g=>{const arr=byG[g];if(!arr)return '';
+    return `<div class="panel" style="margin-bottom:16px"><div class="ph"><h3>${esc(g)}</h3><span class="pill neutral tnum">${arr.length}</span></div>
+    <div class="rowlist">${arr.sort((a,b)=>b.precio-a.precio).map(s=>`
+      <div class="rowlink" style="cursor:default">
+        <div class="avatar" style="background:${s.pack?'var(--accent-soft)':'var(--surface-2)'};color:var(--accent)">${s.pack?'×3':'1'}</div>
+        <div class="info"><div class="nm">${s.destacado?'<span style="color:var(--warn)">★</span> ':''}${esc(s.nombre)} ${s.activo===false?'<span class="pill neutral">inactivo</span>':''}</div>
+          <div class="mt">${esc(s.categoria||'')}${s.duracion?' · '+s.duracion+' min':''}${s.pack?' · Pack':''}</div></div>
+        <div style="display:flex;gap:12px;align-items:center;flex-shrink:0">
+          <div class="rt tnum" style="font-weight:700;color:var(--text)">${money(s.precio)}</div>
+          <a class="btn ghost sm" href="#/servicios/${s.id}">Editar</a>
+        </div>
+      </div>`).join('')}</div></div>`;}).join('');
+  return `
+  <div class="topbar">
+    <div><div class="eyebrow">Módulo 1 · Catálogo</div><h1>Servicios</h1>
+    <p class="sub">${total} tratamientos (${act} activos) · rango ${rango}. Alimenta el selector de sesiones, turnos y cobros.</p></div>
+    <a class="btn pri" href="#/servicios/nuevo">${icon('plus')} Servicio nuevo</a>
+  </div>
+  ${secc}`;
+}
+
+function viewServicioForm(id){
+  const s=id?servicios.find(x=>x.id===id):null;if(id&&!s)return notFound();
+  return `
+  <div class="crumbs"><a href="#/servicios">Servicios</a> ${chev()} <span>${s?'Editar':'Nuevo'}</span></div>
+  <div class="topbar"><div><div class="eyebrow">Catálogo</div><h1>${s?'Editar servicio':'Servicio nuevo'}</h1></div></div>
+  <form class="form" id="svform" style="max-width:640px" autocomplete="off">
+    <fieldset class="fset" style="border:0;padding:0;margin:0"><div class="lh">Tratamiento</div><div class="fb">
+      <div class="field full"><label for="v_nombre">Nombre *</label><input id="v_nombre" required value="${esc(s?.nombre||'')}"></div>
+      <div class="field"><label for="v_grupo">Grupo</label><select id="v_grupo">${sel(GRUPOS,s?s.grupo:'Facial')}</select></div>
+      <div class="field"><label for="v_cat">Categoría</label><input id="v_cat" value="${esc(s?.categoria||'')}" placeholder="Inyectable, Limpieza…"></div>
+      <div class="field"><label for="v_precio">Precio ($) *</label><input id="v_precio" type="number" min="0" inputmode="numeric" required value="${esc(s?.precio??'')}"></div>
+      <div class="field"><label for="v_dur">Duración (min)</label><input id="v_dur" type="number" min="0" inputmode="numeric" value="${esc(s?.duracion??'')}"></div>
+      <div class="field full" style="flex-direction:row;flex-wrap:wrap;gap:8px">
+        <label class="chk"><input type="checkbox" id="v_dest" ${s?.destacado?'checked':''}>★ Destacado</label>
+        <label class="chk"><input type="checkbox" id="v_pack" ${s?.pack?'checked':''}>Es un pack (varias sesiones)</label>
+        <label class="chk"><input type="checkbox" id="v_act" ${(s?s.activo!==false:true)?'checked':''}>Activo (aparece en menús)</label>
+      </div>
+    </div></fieldset>
+    <div class="formbar">
+      ${s?`<button type="button" class="btn danger" onclick="confirmDelServ('${id}')" style="margin-right:auto">Eliminar</button>`:''}
+      <a class="btn ghost" href="#/servicios">Cancelar</a><button class="btn pri" type="submit">Guardar servicio</button>
+    </div>
+  </form>`;
+}
+function bindServicioForm(id){
+  const s=id?servicios.find(x=>x.id===id):null;
+  $('#svform').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const nombre=$('#v_nombre').value.trim();if(!nombre){toast('Falta el nombre');return;}
+    const obj={id:id||uid('sv_'),nombre,grupo:$('#v_grupo').value,categoria:$('#v_cat').value.trim(),
+      precio:Number($('#v_precio').value)||0,duracion:Number($('#v_dur').value)||0,
+      destacado:$('#v_dest').checked,pack:$('#v_pack').checked,activo:$('#v_act').checked,
+      createdAt:s?s.createdAt:null};
+    try{await saveServicio(obj);toast('Servicio guardado');location.hash='#/servicios';}
+    catch(err){toast('Error al guardar');console.error(err);}
+  });
+}
+window.confirmDelServ=function(id){const s=servicios.find(x=>x.id===id);showModal('Eliminar servicio',`Se quita <b>${esc(s.nombre)}</b> del catálogo. Las sesiones ya registradas con este tratamiento no se modifican.`,'Eliminar',async()=>{await delServicio(id);closeModal();toast('Servicio eliminado');location.hash='#/servicios';});};
+window.cargarCatalogoNC=async function(){
+  if(servicios.length){toast('El catálogo ya tiene servicios');return;}
+  const rows=CATALOGO_NC.map(c=>({id:uid('sv_'),activo:true,...c,createdAt:nowISO(),updatedAt:nowISO()}));
+  if(mode==='db'){for(const r of rows){const{id,...b}=r;await DBNS.collection('servicios').doc(id).set(b);}}
+  else{servicios.push(...rows);persistLocal();onData();}
+  toast('Catálogo NC cargado ('+rows.length+' servicios)');render();
+};
 
 /* ---------- misc views ---------- */
 function notFound(){return `<div class="panel"><div class="empty"><div class="ei">${icon('users')}</div><h3>No encontrado</h3><p>Ese registro no existe.</p><a class="btn ghost" style="margin-top:12px" href="#/clientes">Ver clientes</a></div></div>`;}
