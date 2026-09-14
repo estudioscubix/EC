@@ -322,6 +322,7 @@
       <a onclick="showConsentimientos()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M9 15l2 2 4-4"/></svg> Consentimientos</a>
       <a onclick="showReportes()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg> Reportes</a>
       <a onclick="showServicios()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41 12 22l-9-9V3h10l7.59 7.59a2 2 0 0 1 0 2.82z"/><path d="M7 7h.01"/></svg> Servicios</a>
+      <a onclick="showCobros()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h11l1 3v17l-2-1-2 1-2-1-2 1-2-1-2 1V2z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg> Cobros</a>
       <a onclick="showAutomatizacion()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg> Automatización</a>
       <a id="navContentOS" onclick="showContentOS()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg> ContentOS</a>
     </nav>
@@ -460,6 +461,7 @@ function addLogoutBtn(){const bar=document.querySelector('.side-ico');if(bar&&!b
 let patients=[],currentPatientId=null,currentTxId=null,photoSeg='antes';
 let consents=[],settings={id:'app'};
 let turnos=[];
+let cobros=[];
 let liveTurnos=[],liveTurnosStatus='idle',liveMode='proximos',liveSelMonth=null;const SHEET_TURNOS='Turnos';
 const MES_CORTO=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 function mLabel(k){const[y,m]=k.split('-');return `${MES_CORTO[+m-1]} ${y}`;}
@@ -786,6 +788,8 @@ function showInicio(){
   const porTrat={};allCons.forEach(c=>{const k=c.tratamiento||'—';porTrat[k]=(porTrat[k]||0)+1;});
   const top=Object.entries(porTrat).sort((a,b)=>b[1]-a[1]).slice(0,6);const maxT=top.length?top[0][1]:1;
   const nuevosMes=patients.filter(p=>(p.createdAt||'').slice(0,7)===ym).length;
+  const cobradoMes=cobros.filter(c=>(c.fecha||'').slice(0,7)===ym).reduce((a,c)=>a+(Number(c.pagado)||0),0);
+  const saldoPend=cobros.reduce((a,c)=>a+Math.max(0,(Number(c.total)||0)-(Number(c.pagado)||0)),0);
   const recuperar=patients.map(p=>{
     const fechas=[...(p.consultas||[]).map(c=>c.fecha),...turnos.filter(t=>t.patientId===p.id&&t.estado==='Realizado').map(t=>t.fecha)].filter(Boolean).sort();
     const last=fechas[fechas.length-1];return last?{p,last,dias:daysBetween(last,hoy)}:null;
@@ -806,6 +810,8 @@ function showInicio(){
       ${stat('Agenda de hoy',agendaHoy.length,`<span class="hint">${agendaHoy.length?'turnos programados':'sin turnos'}</span>`)}
       ${stat('Pacientes activos',patients.length,`<span class="hint">+${nuevosMes} nuevos este mes</span>`)}
       ${stat('Sesiones este mes',sesMes.length,delta(sesMes.length,sesPrev.length))}
+      ${stat('Cobrado este mes',moneyAR(cobradoMes),`<span class="hint">ingresos del mes</span>`)}
+      ${stat('Saldo pendiente',moneyAR(saldoPend),`<span class="hint">total por cobrar</span>`)}
       <div class="card span-2"><h4 class="ct">Agenda de hoy<span class="lk" onclick="showAgenda()">Ver agenda</span></h4>
         ${agendaHoy.length?agendaHoy.map(t=>`<div class="field-row"><span class="fk" style="min-width:52px;font-weight:600;color:var(--brand-d)">${esc(t.hora||'--')}</span><span class="fv" style="flex:1;text-align:left">${esc(t.nombre||'—')} · ${esc(t.trat||'')}</span><span class="chip ${estadoChip(t.estado)}">${esc(t.estado||'')}</span></div>`).join(''):'<div class="hint">No hay turnos para hoy. Tocá “＋ Nuevo turno”.</div>'}
       </div>
@@ -1155,6 +1161,67 @@ function showAutomatizacion(){
   const el=[...document.querySelectorAll('#nav a')].find(a=>a.textContent.trim().includes('Automatización'));if(el)el.classList.add('active');
 }
 async function markAuto(pid,cid,kind){const p=patientById(pid);if(!p)return;const c=(p.consultas||[]).find(x=>x.id===cid);if(c){if(kind==='post')c.postSent=true;else c.recSent=true;try{await dbPut('patients',p);}catch(e){}toast('Marcado como enviado');}showAutomatizacion();}
+
+/* ===== Cobros / Pagos ===== */
+function cobroEstado(c){const t=Number(c.total)||0,p=Number(c.pagado)||0;return (t>0&&p>=t)?'Pagado':p>0?'Parcial':'Pendiente';}
+function cobroSaldo(c){return Math.max(0,(Number(c.total)||0)-(Number(c.pagado)||0));}
+function estadoCobroChip(e){return e==='Pagado'?'ok':e==='Parcial'?'capilar':'count';}
+function showCobros(){
+  const list=[...cobros].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+  const facturado=cobros.reduce((a,c)=>a+(Number(c.total)||0),0);
+  const cobrado=cobros.reduce((a,c)=>a+(Number(c.pagado)||0),0);
+  const saldo=cobros.reduce((a,c)=>a+cobroSaldo(c),0);
+  const stat=(l,v)=>`<div class="card"><h4 class="ct">${l}</h4><div style="font-family:var(--serif);font-size:28px;font-weight:600;line-height:1">${v}</div></div>`;
+  const rows=list.length?`<div class="card span-3" style="padding:0;overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px;min-width:660px">
+    <thead><tr style="text-align:left;color:var(--muted)"><th style="padding:11px 14px;font-weight:600">Fecha</th><th style="font-weight:600">Paciente</th><th style="font-weight:600">Concepto</th><th style="text-align:right;font-weight:600">Total</th><th style="text-align:right;font-weight:600">Pagado</th><th style="text-align:right;font-weight:600">Saldo</th><th style="font-weight:600">Estado</th><th></th></tr></thead>
+    <tbody>${list.map(c=>{const e=cobroEstado(c);return `<tr style="border-top:1px solid var(--line)">
+      <td style="padding:10px 14px;white-space:nowrap">${fmtLong(c.fecha)}</td>
+      <td>${esc(c.patientName||'—')}</td>
+      <td>${esc(c.concepto||'')}${c.formaPago?`<div class="hint">${esc(c.formaPago)}</div>`:''}</td>
+      <td style="text-align:right;white-space:nowrap">${moneyAR(c.total)}</td>
+      <td style="text-align:right;white-space:nowrap">${moneyAR(c.pagado)}</td>
+      <td style="text-align:right;white-space:nowrap;font-weight:600">${moneyAR(cobroSaldo(c))}</td>
+      <td><span class="chip ${estadoCobroChip(e)}">${e}</span></td>
+      <td style="text-align:right;white-space:nowrap;padding-right:12px"><button class="btn ghost sm" onclick="openCobroForm('${c.id}')">✎</button></td>
+    </tr>`;}).join('')}</tbody></table></div>`:'<div class="card span-3"><div class="empty">Sin cobros cargados todavía. Tocá “＋ Nuevo cobro”.</div></div>';
+  showMisc('Cobros','Pagos y saldos del consultorio',`
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn" onclick="openCobroForm()">＋ Nuevo cobro</button></div>
+    <div class="dash">${stat('Facturado (total)',moneyAR(facturado))}${stat('Cobrado (total)',moneyAR(cobrado))}${stat('Saldo pendiente',moneyAR(saldo))}${rows}</div>`);
+  const el=[...document.querySelectorAll('#nav a')].find(a=>a.textContent.trim().includes('Cobros'));if(el)el.classList.add('active');
+}
+function openCobroForm(id){
+  const c=id?cobros.find(x=>x.id===id):null;
+  const pacOpts=['<option value="">— Elegí paciente —</option>'].concat([...patients].sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'')).map(p=>`<option value="${p.id}" ${c&&c.patientId===p.id?'selected':''}>${esc(p.nombre||'')}</option>`)).join('');
+  const servOpts=['<option value="">— Elegí del catálogo (opcional) —</option>'].concat(SERVICIOS_NC.map(s=>`<option value="${esc(s.n)}" data-precio="${s.p}">${esc(s.n)} · ${moneyAR(s.p)}</option>`)).join('');
+  const fp=['Efectivo','Transferencia','Débito','Crédito','Mercado Pago','Otro'];
+  const ov=document.createElement('div');ov.className='modal-bg show';ov.id='cobroModalDyn';
+  ov.innerHTML=`<div class="modal narrow"><div class="m-head"><h2>${id?'Editar cobro':'Nuevo cobro'}</h2><button class="x" onclick="this.closest('.modal-bg').remove()">×</button></div>
+    <div class="m-body">
+      <div class="frow"><div class="fgroup"><label>Fecha</label><input id="cb_fecha" type="date" value="${c?esc(c.fecha):new Date().toISOString().slice(0,10)}"></div>
+        <div class="fgroup"><label>Paciente</label><select id="cb_pac">${pacOpts}</select></div></div>
+      <div class="fgroup"><label>Concepto / Tratamiento</label><select id="cb_servsel" onchange="cobroPickServ(this)">${servOpts}</select>
+        <input id="cb_concepto" style="margin-top:8px" placeholder="Descripción del cobro" value="${esc(c?c.concepto:'')}"></div>
+      <div class="frow three"><div class="fgroup"><label>Total ($)</label><input id="cb_total" type="number" min="0" inputmode="numeric" value="${esc(c?c.total:'')}"></div>
+        <div class="fgroup"><label>Pagado / Seña ($)</label><input id="cb_pagado" type="number" min="0" inputmode="numeric" value="${esc(c?c.pagado:'')}"></div>
+        <div class="fgroup"><label>Forma de pago</label><select id="cb_fp">${fp.map(x=>`<option ${c&&c.formaPago===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
+      <div class="fgroup"><label>Notas</label><textarea id="cb_notas" rows="2">${esc(c?c.notas:'')}</textarea></div>
+      <div class="hint">El <b>saldo</b> y el <b>estado</b> se calculan solos (Total − Pagado).</div>
+    </div>
+    <div class="m-foot">${id?`<button class="btn danger" onclick="delCobro('${id}')" style="margin-right:auto">Eliminar</button>`:''}<button class="btn ghost" onclick="this.closest('.modal-bg').remove()">Cancelar</button><button class="btn" onclick="saveCobro('${id||''}')">Guardar</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+}
+function cobroPickServ(sel){const nom=sel.value;if(!nom)return;const o=sel.selectedOptions[0];document.getElementById('cb_concepto').value=nom;const pr=o&&o.getAttribute('data-precio');const tot=document.getElementById('cb_total');if(pr&&!tot.value)tot.value=pr;}
+async function saveCobro(id){
+  const g=x=>{const e=document.getElementById(x);return e?e.value:'';};
+  const pacId=g('cb_pac');const pac=patients.find(p=>p.id===pacId);
+  const concepto=g('cb_concepto').trim()||g('cb_servsel');
+  const prev=cobros.find(x=>x.id===id);
+  const obj={id:id||uid(),fecha:g('cb_fecha'),patientId:pacId,patientName:pac?pac.nombre:(prev?prev.patientName:''),concepto,total:Number(g('cb_total'))||0,pagado:Number(g('cb_pagado'))||0,formaPago:g('cb_fp'),notas:g('cb_notas').trim(),createdAt:prev?prev.createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  try{await dbPut('cobros',obj);const i=cobros.findIndex(x=>x.id===obj.id);if(i>=0)cobros[i]=obj;else cobros.push(obj);const m=document.getElementById('cobroModalDyn');if(m)m.remove();toast('Cobro guardado');showCobros();}
+  catch(e){toast('Error al guardar el cobro');console.error(e);}
+}
+async function delCobro(id){if(!confirm('¿Eliminar este cobro?'))return;try{await dbDel('cobros',id);cobros=cobros.filter(x=>x.id!==id);const m=document.getElementById('cobroModalDyn');if(m)m.remove();toast('Cobro eliminado');showCobros();}catch(e){toast('Error al eliminar');console.error(e);}}
 // Validador reutilizable: resalta en rojo TODOS los campos obligatorios vacíos y devuelve los que faltan
 function requireFields(specs){let missing=[],first=null;
   specs.forEach(s=>{const el=document.getElementById(s.id);if(!el)return;el.style.borderColor='';el.style.boxShadow='';
@@ -1294,16 +1361,17 @@ async function saveTx(){const g=id=>{const e=document.getElementById(id);return 
   if(!ed)p.consultas.push(c);await dbPut('patients',p);closeModal('txModal');currentTxId=c.id;toast(ed?'Consulta actualizada':'Consulta creada');renderDash();}
 
 /* ================= BACKUP / TURNOS ================= */
-async function exportBackup(){const photos=await dbGetAll('photos');const blob=new Blob([JSON.stringify({version:3,exportedAt:new Date().toISOString(),patients,photos,consents,settings,turnos})],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`backup-panelNC-${new Date().toISOString().slice(0,10)}.json`;a.click();toast('Copia de seguridad descargada');}
+async function exportBackup(){const photos=await dbGetAll('photos');const blob=new Blob([JSON.stringify({version:4,exportedAt:new Date().toISOString(),patients,photos,consents,settings,turnos,cobros})],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`backup-panelNC-${new Date().toISOString().slice(0,10)}.json`;a.click();toast('Copia de seguridad descargada');}
 async function importBackup(ev){const f=ev.target.files[0];if(!f)return;if(!confirm('Importar reemplazará TODOS los datos actuales. ¿Continuar?')){ev.target.value='';return;}
   try{const data=JSON.parse(await f.text());if(!data.patients)throw new Error('Formato inválido');
-    for(const p of await dbGetAll('patients'))await dbDel('patients',p.id);for(const ph of await dbGetAll('photos'))await dbDel('photos',ph.id);for(const cc of await dbGetAll('consents'))await dbDel('consents',cc.id);for(const tt of await dbGetAll('turnos'))await dbDel('turnos',tt.id);
+    for(const p of await dbGetAll('patients'))await dbDel('patients',p.id);for(const ph of await dbGetAll('photos'))await dbDel('photos',ph.id);for(const cc of await dbGetAll('consents'))await dbDel('consents',cc.id);for(const tt of await dbGetAll('turnos'))await dbDel('turnos',tt.id);for(const cx of await dbGetAll('cobros'))await dbDel('cobros',cx.id);
     for(const p of data.patients){if(!p.consultas&&p.treatments)p.consultas=p.treatments.map(t=>({...t,tipo:t.tipo||'facial'}));await dbPut('patients',p);}
     for(const ph of (data.photos||[]))await dbPut('photos',ph);
     for(const cc of (data.consents||[]))await dbPut('consents',cc);
     for(const tt of (data.turnos||[]))await dbPut('turnos',tt);
+    for(const cx of (data.cobros||[]))await dbPut('cobros',cx);
     if(data.settings){settings={...data.settings,id:'app'};await dbPut('settings',settings);}
-    patients=data.patients;consents=data.consents||[];turnos=data.turnos||[];toast('Copia restaurada');renderDraPhoto();showInicio();}catch(e){alert('No se pudo importar: '+e.message);}ev.target.value='';}
+    patients=data.patients;consents=data.consents||[];turnos=data.turnos||[];cobros=data.cobros||[];toast('Copia restaurada');renderDraPhoto();showInicio();}catch(e){alert('No se pudo importar: '+e.message);}ev.target.value='';}
 function openTurnos(){const url=localStorage.getItem('turnosURL')||`https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit?gid=1156291152#gid=1156291152`;window.open(url,'_blank');}
 
 function closeModal(id){document.getElementById(id).classList.remove('show');if(id==='patientModal'){document.querySelector('#patientModal .m-foot').innerHTML=`<button class="btn ghost" onclick="closeModal('patientModal')">Cancelar</button><button class="btn" onclick="savePatient()">Guardar</button>`;}}
@@ -1321,7 +1389,7 @@ window.addEventListener('error',e=>{console.error('window.error',e.error||e.mess
   const ok=await ensureAuth();if(!ok)return;
   patients=await dbGetAll('patients');
   patients.forEach(p=>{if(!p.consultas){p.consultas=(p.treatments||[]).map(t=>({...t,tipo:t.tipo||'facial'}));}});
-  consents=await dbGetAll('consents');settings=(await dbGet('settings','app'))||{id:'app'};turnos=await dbGetAll('turnos');
+  consents=await dbGetAll('consents');settings=(await dbGet('settings','app'))||{id:'app'};turnos=await dbGetAll('turnos');try{cobros=await dbGetAll('cobros');}catch(e){cobros=[];console.warn('Tabla cobros aún no creada en Supabase.',e);}
   showInicio();renderDraPhoto();
   const c=localStorage.getItem('baseCache');if(c){baseRows=JSON.parse(c);baseStatus='ok';}loadBase(true);
 })();
