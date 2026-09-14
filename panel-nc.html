@@ -202,6 +202,32 @@
   @media(max-width:560px){.frow,.frow.three{grid-template-columns:1fr}}
   .form-sect{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--brand-d);margin:20px 0 11px;padding-bottom:6px;border-bottom:1px solid var(--line)}
   .hint{font-size:11.5px;color:var(--muted)}
+  /* Chips de selección (alergias / banderas clínicas) */
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
+  .chip-in{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid var(--line);border-radius:20px;background:var(--panel-2);cursor:pointer;font-size:11.5px;font-weight:600;color:var(--ink-soft);user-select:none;transition:.12s}
+  .chip-in input{accent-color:var(--brand);width:14px;height:14px;margin:0}
+  .chip-in:has(input:checked){background:var(--brand-soft);border-color:var(--brand);color:var(--brand-d)}
+  .chip-in.flag:has(input:checked){background:#3A2626;border-color:var(--danger);color:var(--danger)}
+  /* Severidad de alertas */
+  .alert.crit .ai{background:#3A2626;color:var(--danger)}
+  .alert.warn .ai{background:#332A1C;color:var(--warn)}
+  /* Servicios de la Dra */
+  .serv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+  .serv-card{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .serv-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .serv-name{font-weight:600;font-size:13px;line-height:1.25}
+  .serv-price{font-family:var(--serif);font-weight:600;color:var(--brand-d);white-space:nowrap;font-size:15.5px}
+  .serv-meta{font-size:10.5px;color:var(--muted);margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .serv-tag{background:var(--brand-soft);color:var(--brand-d);padding:2px 8px;border-radius:20px;font-weight:600}
+  .serv-desc{margin-top:9px}
+  .serv-desc summary{cursor:pointer;color:var(--brand-d);font-size:11px;font-weight:600;list-style:none}
+  .serv-desc p{font-size:11.5px;color:var(--ink-soft);margin-top:7px;line-height:1.5}
+  /* Automatización WhatsApp */
+  .btn.wa{background:#25D366;color:#0b2e17}
+  .btn.wa:hover{background:#1fb457}
+  .auto-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .auto-row:last-child{border-bottom:none}
+  .auto-row .avatar{width:40px;height:40px;font-size:15px}
   .exam-item{display:grid;grid-template-columns:1fr 160px;gap:10px;align-items:center;padding:6px 0}
   @media(max-width:560px){.exam-item{grid-template-columns:1fr}}
   .exam-item label{font-size:12.5px;margin:0}
@@ -267,6 +293,8 @@
       <a onclick="showAgenda()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Turnos</a>
       <a onclick="showConsentimientos()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M9 15l2 2 4-4"/></svg> Consentimientos</a>
       <a onclick="showReportes()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg> Reportes</a>
+      <a onclick="showServicios()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41 12 22l-9-9V3h10l7.59 7.59a2 2 0 0 1 0 2.82z"/><path d="M7 7h.01"/></svg> Servicios</a>
+      <a onclick="showAutomatizacion()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg> Automatización</a>
       <a id="navContentOS" onclick="showContentOS()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg> ContentOS</a>
     </nav>
     <div class="who" onclick="changeDraPhoto()" title="Cambiar foto de perfil" style="cursor:pointer"><div class="ph avatar" id="draAvatar" style="width:38px;height:38px;font-size:14px">NC</div><div><b>Dra. Natalia Cubillas</b><span>Cambiar foto ✎</span></div></div>
@@ -622,13 +650,16 @@ function renderExamSummary(c){
   return (metaHtml+rows)||'<div class="hint">Sin hallazgos cargados.</div>';
 }
 function renderAlertas(p,cons){
-  const items=[];const prox=cons.map(c=>c.proxControl).filter(Boolean).sort()[0];
-  if(prox)items.push(['🔔','Próximo control',fmtLong(prox)]);
-  if((p.a_alerg||'').trim()&&!/niega|ninguna/i.test(p.a_alerg))items.push(['⚠️','Alergias / alertas',p.a_alerg]);
+  const items=[];
+  alertasClinicas(p).forEach(f=>items.push({lvl:f.lvl,ico:f.lvl==='crit'?'⛔':'⚠️',t:f.lvl==='crit'?'Contraindicación':'Precaución',d:f.t}));
+  const alg=alergiasResumen(p);
+  if(alg.length)items.push({lvl:'warn',ico:'⚠️',t:'Alergias declaradas',d:alg.join(' · ')});
+  const prox=cons.map(c=>c.proxControl).filter(Boolean).sort()[0];
+  if(prox)items.push({lvl:'',ico:'🔔',t:'Próximo control',d:fmtLong(prox)});
   const pend=cons.find(c=>c.estadoTrat&&c.estadoTrat!=='Completado');
-  if(pend)items.push(['⏳','Tratamiento en curso',`${pend.tratamiento} · ${fmtLong(pend.fecha)}`]);
-  if(!items.length)items.push(['✅','Sin pendientes','Todo al día']);
-  return items.map(a=>`<div class="alert"><div class="ai">${a[0]}</div><div><b>${esc(a[1])}</b><span>${esc(a[2])}</span></div></div>`).join('');
+  if(pend)items.push({lvl:'',ico:'⏳',t:'Tratamiento en curso',d:`${pend.tratamiento} · ${fmtLong(pend.fecha)}`});
+  if(!items.length)items.push({lvl:'',ico:'✅',t:'Sin pendientes',d:'Todo al día'});
+  return items.map(a=>`<div class="alert ${a.lvl}"><div class="ai">${a.ico}</div><div><b>${esc(a.t)}</b><span>${esc(a.d)}</span></div></div>`).join('');
 }
 function selectTx(id){currentTxId=id;renderDash();}
 
@@ -960,6 +991,119 @@ function closeCompare(){document.getElementById('cmpOverlay').classList.remove('
 const F=(l,id,v,t='text',ph='')=>`<div class="fgroup"><label>${l}</label><input type="${t}" id="${id}" value="${esc(v)}" placeholder="${ph}"></div>`;
 const FA=(l,id,v,ph='',rows=2)=>`<div class="fgroup"><label>${l}</label><textarea id="${id}" rows="${rows}" placeholder="${ph}">${esc(v)}</textarea></div>`;
 const SEL=(l,id,v,opts)=>`<div class="fgroup"><label>${l}</label><select id="${id}">${opts.map(o=>`<option ${v===o?'selected':''}>${o}</option>`).join('')}</select></div>`;
+/* ===== Alergias por chips + banderas clínicas (contraindicaciones automáticas) ===== */
+const ALERG=['Anestésicos (lidocaína)','Látex','Ácido hialurónico','Antibióticos','AINEs','Corticoides','Níquel','Cosméticos','Alimentos'];
+const FLAGS=[
+  {k:'Embarazo',lvl:'crit',t:'Embarazo — contraindica toxina botulínica, rellenos, mesoterapia, fosfatidilcolina y PRP.'},
+  {k:'Lactancia',lvl:'warn',t:'Lactancia — evitar inyectables reductores; consultar cada tratamiento.'},
+  {k:'Anticoagulantes / antiagregantes',lvl:'warn',t:'Anticoagulantes — riesgo de hematoma en todo procedimiento inyectable.'},
+  {k:'Marcapasos / implante metálico',lvl:'warn',t:'Marcapasos / implante — precaución con radiofrecuencia y corrientes.'},
+  {k:'Isotretinoína (Roacután)',lvl:'crit',t:'Isotretinoína — contraindica peeling, microneedling y láser (esperar ~6 meses).'},
+  {k:'Herpes labial recurrente',lvl:'warn',t:'Herpes recurrente — profilaxis antes de peeling, microneedling o PRP facial.'},
+  {k:'Enf. neuromuscular (miastenia)',lvl:'crit',t:'Enfermedad neuromuscular — contraindica toxina botulínica.'},
+  {k:'Oncológico activo',lvl:'crit',t:'Antecedente oncológico activo — requiere apto médico.'}
+];
+function chipGroup(name,opts,sel,isFlag){sel=sel||[];return `<div class="chips">${opts.map(o=>`<label class="chip-in${isFlag?' flag':''}"><input type="checkbox" data-chip="${name}" value="${esc(o)}" ${sel.includes(o)?'checked':''}>${esc(o)}</label>`).join('')}</div>`;}
+function readChips(name){return [...document.querySelectorAll(`input[data-chip="${name}"]:checked`)].map(i=>i.value);}
+function alergiasResumen(p){const a=(p.a_alergias||[]).slice();const t=(p.a_alerg||'').trim();if(t&&!/niega|ninguna/i.test(t))a.push(t);return a;}
+function alertasClinicas(p){return (p.a_flags||[]).map(k=>FLAGS.find(f=>f.k===k)).filter(Boolean);}
+
+/* ===== Servicios de la Dra. (catálogo real — Base_Pacientes_NC) ===== */
+function moneyAR(n){return '$'+(Number(n)||0).toLocaleString('es-AR');}
+const SERVICIOS_NC=[
+  {n:'Consulta médica',g:'Consulta',cat:'Consulta',p:35000,d:15,star:false,pack:false,desc:'Evaluación personalizada: valoración facial, corporal o capilar, se explican las opciones y se define el protocolo más adecuado. 15 min. Ideal antes de iniciar un tratamiento.'},
+  {n:'Limpieza facial profunda con extracciones',g:'Facial',cat:'Limpieza',p:65000,d:60,star:true,pack:false,desc:'Higiene facial profesional: exfoliación con punta de diamante, extracción de comedones, alta frecuencia y mascarilla. Limpia poros, mejora textura y luminosidad, previene brotes. 60 min.'},
+  {n:'Peeling químico',g:'Facial',cat:'Peeling médico',p:60000,d:60,star:false,pack:false,desc:'Exfoliación mecánica + peeling químico personalizado. Unifica el tono, atenúa manchas, marcas de acné y líneas finas, reduce poros. 45–60 min.'},
+  {n:'Microneedling (Dermapen®)',g:'Facial',cat:'Inyectable',p:68000,d:50,star:false,pack:false,desc:'Bioestimulación con microagujas: estimula colágeno y elastina, mejora firmeza y textura, disminuye cicatrices de acné y poros. 45–60 min.'},
+  {n:'Exosomas con microneedling (Dermapen®)',g:'Facial',cat:'Inyectable',p:75000,d:50,star:false,pack:false,desc:'Regeneración celular avanzada: microneedling + exosomas. Estimula intensamente colágeno, mejora manchas, cicatrices y textura, aporta firmeza. 60 min.'},
+  {n:'Plasma rico en plaquetas — rostro, cuello y escote',g:'Facial',cat:'Inyectable',p:78000,d:60,star:true,pack:false,desc:'Medicina regenerativa con factores de crecimiento de la propia sangre. Rejuvenece de forma natural, mejora firmeza, elasticidad y luminosidad. 60 min.'},
+  {n:'Mesoterapia facial nacional (1 sesión)',g:'Facial',cat:'Inyectable',p:50000,d:40,star:false,pack:false,desc:'Cócteles de vitaminas, ácido hialurónico y antioxidantes. Hidrata en profundidad, aporta luminosidad, mejora textura y firmeza. 30–45 min.'},
+  {n:'Mesoterapia facial Inbiotec® Face & Shine (1 sesión)',g:'Facial',cat:'Inyectable',p:60000,d:40,star:false,pack:false,desc:'Bioestimulación avanzada: fórmula Face (firmeza) o Shine (luminosidad). Estimula colágeno, hidrata, atenúa líneas, manchas y fotoenvejecimiento. 30–45 min.'},
+  {n:'Toxina botulínica Botox® 1 zona — hasta 20 U',g:'Facial',cat:'Inyectable',p:98000,d:20,star:true,pack:false,desc:'Suaviza líneas de expresión de frente, entrecejo y patas de gallo. Efecto a los 3–4 días, máximo a los 14; dura 3–4 meses. Reevaluación a los 14 días.'},
+  {n:'Toxina botulínica Botox® 2 zonas — hasta 40 U',g:'Facial',cat:'Inyectable',p:190000,d:30,star:true,pack:false,desc:'Relaja los músculos de las líneas de expresión (frente, entrecejo, patas de gallo, sonrisa gingival, mentón, según evaluación). Dura 3–4 meses. Reevaluación a los 14 días.'},
+  {n:'Toxina botulínica Botox® 3 zonas — hasta 55 U',g:'Facial',cat:'Inyectable',p:235000,d:30,star:true,pack:false,desc:'Tres zonas de líneas de expresión. Suaviza arrugas dinámicas y previene nuevas, resultado natural. Dura 3–4 meses. Reevaluación a los 14 días.'},
+  {n:'Toxina botulínica (Xeomin®) bruxismo — hasta 60 U',g:'Facial',cat:'Inyectable',p:245000,d:30,star:false,pack:false,desc:'Relaja el masetero: disminuye dolor de mandíbula, cuello y cabeza, protege las piezas dentarias y puede afinar el contorno del rostro. Dura 3–4 meses.'},
+  {n:'Plasma rico en plaquetas capilar',g:'Capilar',cat:'Inyectable',p:78000,d:60,star:true,pack:false,desc:'Factores de crecimiento de la propia sangre para estimular los folículos. Disminuye la caída, mejora densidad, grosor y calidad del cabello. 60 min.'},
+  {n:'Mesoterapia capilar (1 sesión)',g:'Capilar',cat:'Inyectable',p:50000,d:30,star:false,pack:false,desc:'Microinyecciones en el cuero cabelludo, fórmula personalizada. Disminuye la caída, estimula el crecimiento y fortalece desde la raíz. 20–30 min.'},
+  {n:'Mesoterapia corporal nacional por zona (1 sesión)',g:'Corporal',cat:'Inyectable',p:50000,d:30,star:false,pack:false,desc:'Principios activos para mejorar la calidad de la piel corporal. Mejora la apariencia de la celulitis, favorece firmeza y drenaje. 20–40 min.'},
+  {n:'Fosfatidilcolina (lipólisis química) por zona (1 sesión)',g:'Corporal',cat:'Inyectable',p:65000,d:30,star:false,pack:false,desc:'Inyectable lipolítico que reduce grasa localizada y mejora el contorno sin cirugía (abdomen, flancos, muslos, papada). No es para bajar de peso. 20–30 min.'},
+  {n:'PACK 3 sesiones — mesoterapia capilar',g:'Capilar',cat:'Inyectable',p:130000,d:30,star:false,pack:true,desc:'Se abona la totalidad en la 1ª sesión. Tres sesiones de mesoterapia capilar para nutrir y estimular los folículos.'},
+  {n:'PACK 3 PRP + 3 mesoterapia',g:'Facial',cat:'Inyectable',p:310000,d:60,star:false,pack:true,desc:'Se abona la totalidad en la 1ª sesión. Sesiones faciales o capilares: PRP 1 vez por mes y, entre cada PRP, una mesoterapia.'},
+  {n:'PACK 3 sesiones — mesoterapia facial Inbiotec® Face & Shine',g:'Facial',cat:'Inyectable',p:163000,d:40,star:false,pack:true,desc:'Se abona la totalidad en la 1ª sesión. Bioestimulación Face & Shine: colágeno, hidratación y atenuación de líneas y manchas.'},
+  {n:'PACK 3 sesiones — mesoterapia nacional',g:'Facial',cat:'Inyectable',p:130000,d:40,star:false,pack:true,desc:'Se abona la totalidad en la 1ª sesión. Ácido hialurónico, vitaminas y antioxidantes: hidrata, ilumina y mejora textura y firmeza.'},
+  {n:'PACK 3 sesiones — plasma rico en plaquetas',g:'Facial',cat:'Inyectable',p:199000,d:60,star:false,pack:true,desc:'Se abona la totalidad en la 1ª sesión. Medicina regenerativa en rostro o cuero cabelludo con factores de crecimiento propios.'},
+  {n:'PACK 3 sesiones — fosfatidilcolina por zona',g:'Corporal',cat:'Inyectable',p:175000,d:30,star:false,pack:true,desc:'Se abona la totalidad en la 1ª sesión. Reduce grasa localizada y mejora el contorno corporal sin cirugía.'}
+];
+function servCard(s){return `<div class="serv-card">
+  <div class="serv-top"><div class="serv-name">${s.star?'★ ':''}${esc(s.n)}</div><div class="serv-price">${moneyAR(s.p)}</div></div>
+  <div class="serv-meta">${esc(s.cat||s.g)}${s.d?' · '+s.d+' min':''}${s.pack?' <span class="serv-tag">Pack ×3</span>':''}</div>
+  ${s.desc?`<details class="serv-desc"><summary>Ver descripción</summary><p>${esc(s.desc)}</p></details>`:''}
+</div>`;}
+function showServicios(){
+  const grupos=['Consulta','Facial','Capilar','Corporal'];
+  const precios=SERVICIOS_NC.map(s=>s.p);
+  const rango=moneyAR(Math.min(...precios))+' – '+moneyAR(Math.max(...precios));
+  const secs=grupos.map(g=>{const arr=SERVICIOS_NC.filter(s=>s.g===g);if(!arr.length)return '';
+    return `<div class="card" style="margin-bottom:16px"><h4 class="ct">${g} · ${arr.length}</h4>
+      <div class="serv-grid">${arr.sort((a,b)=>b.p-a.p).map(servCard).join('')}</div></div>`;}).join('');
+  showMisc('Servicios de la Dra.','Catálogo de tratamientos y precios',
+    `<div class="stat-bar"><span><b>${SERVICIOS_NC.length}</b> tratamientos</span><span>Rango <b>${rango}</b></span><span>Fuente: Base_Pacientes_NC</span></div>${secs}`);
+  const el=[...document.querySelectorAll('#nav a')].find(a=>a.textContent.trim().includes('Servicios'));if(el)el.classList.add('active');
+}
+
+/* ===== Automatización WhatsApp (post-cuidado, recordatorios, reactivación) ===== */
+const CENTRO_NC='Dra. Natalia Cubillas';
+function _digits(t){return String(t||'').replace(/\D/g,'');}
+function waLink(tel,msg){return 'https://wa.me/'+_digits(tel)+'?text='+encodeURIComponent(msg);}
+function _fname(n){return String(n||'').trim().split(/\s+/)[0]||'';}
+function _dsince(d){if(!d)return Infinity;const t=new Date(d);if(isNaN(t))return Infinity;return Math.floor((Date.now()-t)/864e5);}
+function _duntil(d){if(!d)return null;const t=new Date(d);if(isNaN(t))return null;return Math.ceil((t-Date.now())/864e5);}
+const MSG={
+  post:(p,c)=>{const tx=(c.tratamiento||'tratamiento');const botox=/botox|toxina|xeomin/i.test(tx);
+    return `Hola ${_fname(p.nombre)}! Gracias por tu visita 😊 Después de tu ${tx} te recomiendo: evitar sol directo y calor (sauna/pileta) 48–72 h, usar protector solar FPS 50+, no tocar ni maquillar la zona por 24 h y evitar ejercicio intenso y alcohol las primeras 24 h.${botox?' Por ser toxina botulínica: no te acuestes ni masajees la zona por 4 h y mantené gestos suaves.':''} Ante cualquier duda, escribime. — ${CENTRO_NC}`;},
+  record:(o)=>{const when=o.turno?(fmtLong(o.turno.fecha)+(o.turno.hora?' '+o.turno.hora:'')):fmtLong(o.c.proxControl);
+    return `Hola ${_fname(o.p.nombre)}! Te recuerdo tu ${o.turno?'turno':'control'} el ${when}. ¿Lo confirmamos? 😊 — ${CENTRO_NC}`;},
+  react:(p)=>`Hola ${_fname(p.nombre)}! ✨ Hace un tiempo que no nos vemos. Me encantaría acompañarte con tu próximo tratamiento. ¿Coordinamos una cita? — ${CENTRO_NC}`
+};
+function autoQueues(){
+  const post=[],record=[],react=[];
+  (patients||[]).forEach(p=>{
+    const cons=(p.consultas||[]);
+    cons.forEach(c=>{
+      const ds=_dsince(c.fecha);if(ds>=0&&ds<=3&&!c.postSent)post.push({p,c});
+      const du=_duntil(c.proxControl);if(c.proxControl&&du!==null&&du>=-1&&du<=3&&!c.recSent)record.push({p,c,du});
+    });
+    const last=cons.map(c=>c.fecha).filter(Boolean).sort().slice(-1)[0];
+    if(last&&_dsince(last)>60)react.push({p,dias:_dsince(last)});
+  });
+  (turnos||[]).forEach(t=>{const du=_duntil(t.fecha);if(t.fecha&&du!==null&&du>=-1&&du<=3){const p=patients.find(x=>x.nombre===t.paciente)||{nombre:t.paciente,tel:''};record.push({p,turno:t,du});}});
+  post.sort((a,b)=>(b.c.fecha||'').localeCompare(a.c.fecha||''));record.sort((a,b)=>a.du-b.du);react.sort((a,b)=>b.dias-a.dias);
+  return {post,record,react};
+}
+function autoRow(p,label,right,link,mark){
+  const noTel=!p.tel;
+  return `<div class="auto-row">
+    <div class="avatar">${esc(initials(p.nombre))}</div>
+    <div style="flex:1;min-width:0"><b style="font-size:12.5px">${esc(p.nombre)}</b><div style="font-size:10.5px;color:var(--muted)">${esc(label)}${right?' · '+esc(right):''}</div></div>
+    ${noTel?'<span class="chip count">sin teléfono</span>':`<a class="btn wa sm" href="${link}" target="_blank" rel="noopener">WhatsApp</a>`}
+    ${mark?`<button class="btn ghost sm" onclick="${mark}">Hecho</button>`:''}
+  </div>`;
+}
+function showAutomatizacion(){
+  const q=autoQueues();
+  const card=(title,desc,items,rowsHtml)=>`<div class="card" style="margin-bottom:16px"><h4 class="ct">${title}<span class="lk" style="cursor:default;color:var(--muted)">${items.length}</span></h4>
+    <div class="hint" style="margin-bottom:${items.length?'8px':'0'}">${desc}</div>${items.length?rowsHtml:'<div class="hint">Nada pendiente ✨</div>'}</div>`;
+  const postHtml=q.post.map(({p,c})=>autoRow(p,'Post-cuidado · '+(c.tratamiento||'tratamiento'),fmtLong(c.fecha),waLink(p.tel,MSG.post(p,c)),`markAuto('${p.id}','${c.id}','post')`)).join('');
+  const recHtml=q.record.map(o=>autoRow(o.p,(o.turno?'Turno':'Control')+' · '+((o.turno&&o.turno.tratamiento)||(o.c&&o.c.tratamiento)||''),o.du<0?'vencido':o.du===0?'hoy':'en '+o.du+' d',waLink(o.p.tel,MSG.record(o)),(o.c&&o.p.id)?`markAuto('${o.p.id}','${o.c.id}','rec')`:'')).join('');
+  const reactHtml=q.react.map(({p,dias})=>autoRow(p,'Inactiva hace '+dias+' días','',waLink(p.tel,MSG.react(p)),'')).join('');
+  showMisc('Automatización','Mensajes de WhatsApp que salen del registro',
+    `<div class="hint" style="margin-bottom:14px">Cada botón abre WhatsApp con el mensaje pre-armado (wa.me). En la versión escalable, estos envíos se automatizan con n8n + WAHA.</div>`
+    +card('Post-cuidado (últimas 72 h)','Pacientes atendidas en los últimos 3 días sin indicaciones enviadas.',q.post,postHtml)
+    +card('Recordatorio de control / turno','Controles y turnos dentro de los próximos 3 días o vencidos.',q.record,recHtml)
+    +card('Reactivar inactivas','Pacientes con visitas pero sin verte hace más de 60 días.',q.react,reactHtml));
+  const el=[...document.querySelectorAll('#nav a')].find(a=>a.textContent.trim().includes('Automatización'));if(el)el.classList.add('active');
+}
+async function markAuto(pid,cid,kind){const p=patientById(pid);if(!p)return;const c=(p.consultas||[]).find(x=>x.id===cid);if(c){if(kind==='post')c.postSent=true;else c.recSent=true;try{await dbPut('patients',p);}catch(e){}toast('Marcado como enviado');}showAutomatizacion();}
 // Validador reutilizable: resalta en rojo TODOS los campos obligatorios vacíos y devuelve los que faltan
 function requireFields(specs){let missing=[],first=null;
   specs.forEach(s=>{const el=document.getElementById(s.id);if(!el)return;el.style.borderColor='';el.style.boxShadow='';
@@ -992,7 +1136,9 @@ function openPatientForm(id){
     <div class="frow">${F('Lifting facial','f_lifting',p.a_lifting)}${F('Tipo de cicatrización','f_cicat',p.a_cicat)}</div>
     <div class="frow">${F('Ginecoobstétricos','f_gineco',p.a_gineco,'text','G_P_C_A_')}${F('Serologías ETS','f_ets',p.a_ets)}</div>
     <div class="frow">${FA('Medicación','f_medic',p.a_medic)}${FA('Suplementación','f_suplem',p.a_suplem)}</div>
-    <div class="frow">${F('Alergias','f_alerg',p.a_alerg,'text','Niega / especificar')}${F('Vacunas','f_vac',p.a_vac)}</div>
+    <div class="fgroup"><label>Alergias — marcá las que apliquen</label>${chipGroup('alg',ALERG,p.a_alergias)}</div>
+    <div class="frow">${F('Detalle / otras alergias','f_alerg',p.a_alerg,'text','Niega / especificar')}${F('Vacunas','f_vac',p.a_vac)}</div>
+    <div class="fgroup"><label>Banderas clínicas / contraindicaciones — generan alerta automática</label>${chipGroup('flg',FLAGS.map(f=>f.k),p.a_flags,true)}</div>
     <div class="frow three">${F('Tabaco / Alcohol','f_habitos',p.a_habitos)}${F('Alimentación','f_alim',p.a_alim)}${F('Sueño','f_sueno',p.a_sueno)}</div>
     <div class="frow">${F('Actividad física','f_afisica',p.a_afisica)}${F('Rutina domiciliaria','f_rutina',p.a_rutina)}</div>`;
   document.getElementById('patientModal').classList.add('show');
@@ -1016,6 +1162,7 @@ async function savePatient(){const g=id=>{const e=document.getElementById(id);re
   p.codigo=p.codigo||('NC-'+p.id.slice(-4).toUpperCase());
   Object.assign(p,{nombre,dni:g('f_dni'),fn:g('f_fn'),genero:g('f_genero'),tel:g('f_tel'),email:g('f_email'),fototipo:g('f_fototipo'),ocupacion:g('f_ocup'),localidad:g('f_loc'),emergencia:g('f_emerg'),
     a_clinicos:g('f_clinicos'),a_quir:g('f_quir'),a_hered:g('f_hered'),a_esteticos:g('f_esteticos'),a_psico:g('f_psico'),a_lifting:g('f_lifting'),a_cicat:g('f_cicat'),a_gineco:g('f_gineco'),a_ets:g('f_ets'),a_medic:g('f_medic'),a_suplem:g('f_suplem'),a_alerg:g('f_alerg'),a_vac:g('f_vac'),a_habitos:g('f_habitos'),a_alim:g('f_alim'),a_sueno:g('f_sueno'),a_afisica:g('f_afisica'),a_rutina:g('f_rutina'),updatedAt:new Date().toISOString()});
+  p.a_alergias=readChips('alg');p.a_flags=readChips('flg');
   if(g('f_genero')==='—')p.genero='';
   try{
     await dbPut('patients',p);if(!ed)patients.push(p);
@@ -1029,7 +1176,7 @@ async function deletePatient(){const p=patientById(currentPatientId);if(!confirm
   await dbDel('patients',p.id);patients=patients.filter(x=>x.id!==p.id);toast('Paciente eliminada');goPacientes();}
 
 /* ================= ANTECEDENTES (modal solo lectura) ================= */
-function openAntecedentes(id){const p=patientById(id);const rows=[['Clínicos',p.a_clinicos],['Quirúrgicos',p.a_quir],['Hereditarios alopecia',p.a_hered],['Estéticos',p.a_esteticos],['Psico-sociales',p.a_psico],['Lifting facial',p.a_lifting],['Cicatrización',p.a_cicat],['Ginecoobstétricos',p.a_gineco],['Serologías ETS',p.a_ets],['Medicación',p.a_medic],['Suplementación',p.a_suplem],['Alergias',p.a_alerg],['Vacunas',p.a_vac],['Hábitos',p.a_habitos],['Alimentación',p.a_alim],['Sueño',p.a_sueno],['Actividad física',p.a_afisica],['Rutina domiciliaria',p.a_rutina]].filter(r=>r[1]&&r[1].trim());
+function openAntecedentes(id){const p=patientById(id);const rows=[['Clínicos',p.a_clinicos],['Quirúrgicos',p.a_quir],['Hereditarios alopecia',p.a_hered],['Estéticos',p.a_esteticos],['Psico-sociales',p.a_psico],['Lifting facial',p.a_lifting],['Cicatrización',p.a_cicat],['Ginecoobstétricos',p.a_gineco],['Serologías ETS',p.a_ets],['Medicación',p.a_medic],['Suplementación',p.a_suplem],['Alergias',[...(p.a_alergias||[]),(p.a_alerg||'')].filter(Boolean).join(', ')],['Banderas clínicas',(p.a_flags||[]).join(', ')],['Vacunas',p.a_vac],['Hábitos',p.a_habitos],['Alimentación',p.a_alim],['Sueño',p.a_sueno],['Actividad física',p.a_afisica],['Rutina domiciliaria',p.a_rutina]].filter(r=>r[1]&&r[1].trim());
   document.getElementById('patientModalTitle').textContent='Antecedentes · '+p.nombre;
   document.getElementById('patientForm').dataset.editing='__view__';
   document.getElementById('patientForm').innerHTML=rows.length?rows.map(r=>`<div class="field-row"><span class="fk">${r[0]}</span><span class="fv">${esc(r[1])}</span></div>`).join(''):'<div class="hint">Sin antecedentes cargados.</div>';
