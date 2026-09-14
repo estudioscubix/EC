@@ -420,24 +420,42 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ================= STORAGE (IndexedDB) ================= */
-const DB_NAME='panelNC',DB_VER=3;let db;
-function initDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,DB_VER);
-  r.onupgradeneeded=e=>{const d=e.target.result;
-    if(!d.objectStoreNames.contains('patients'))d.createObjectStore('patients',{keyPath:'id'});
-    if(!d.objectStoreNames.contains('photos'))d.createObjectStore('photos',{keyPath:'id'});
-    if(!d.objectStoreNames.contains('consents'))d.createObjectStore('consents',{keyPath:'id'});
-    if(!d.objectStoreNames.contains('settings'))d.createObjectStore('settings',{keyPath:'id'});
-    if(!d.objectStoreNames.contains('turnos'))d.createObjectStore('turnos',{keyPath:'id'});};
-  r.onsuccess=e=>{db=e.target.result;db.onversionchange=()=>{db.close();};res()};
-  r.onerror=()=>rej(r.error);
-  r.onblocked=()=>{alert('El panel está abierto en OTRA pestaña con una versión anterior.\n\nCerrá todas las demás pestañas de nc-historia-clinica y recargá esta. Eso destraba el guardado.');};});}
-const store=(s,m)=>db.transaction(s,m).objectStore(s);
-const dbGetAll=s=>new Promise((res,rej)=>{const q=store(s,'readonly').getAll();q.onsuccess=()=>res(q.result||[]);q.onerror=()=>rej(q.error);});
-const dbGet=(s,id)=>new Promise((res,rej)=>{const q=store(s,'readonly').get(id);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});
-const dbPut=(s,o)=>new Promise((res,rej)=>{const t=store(s,'readwrite');const q=t.put(o);q.onsuccess=()=>res();q.onerror=()=>rej(q.error);t.onabort=()=>rej(t.error||new Error('transacción cancelada'));});
-const dbDel=(s,id)=>new Promise((res,rej)=>{const t=store(s,'readwrite');const q=t.delete(id);q.onsuccess=()=>res();q.onerror=()=>rej(q.error);t.onabort=()=>rej(t.error||new Error('transacción cancelada'));});
+/* ================= STORAGE (Supabase — nube) ================= */
+const SUPABASE_URL='https://ynwkxcmgxjiyemryyyok.supabase.co';
+const SUPABASE_KEY='__SUPABASE_ANON_KEY__';
+let sb=null;
+function initDB(){
+  if(!window.supabase)throw new Error('No se pudo cargar Supabase (revisá la conexión a internet).');
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true}});
+  return Promise.resolve();
+}
+async function dbGetAll(s){const{data,error}=await sb.from(s).select('id,data');if(error)throw new Error(error.message);return (data||[]).map(r=>s==='photos'?{id:r.id,data:r.data}:r.data).filter(Boolean);}
+async function dbGet(s,id){const{data,error}=await sb.from(s).select('id,data').eq('id',id).maybeSingle();if(error)throw new Error(error.message);if(!data)return undefined;return s==='photos'?{id:data.id,data:data.data}:data.data;}
+async function dbPut(s,o){const row=(s==='photos')?{id:o.id,data:o.data}:{id:o.id,data:o};const{error}=await sb.from(s).upsert(row);if(error)throw new Error(error.message);}
+async function dbDel(s,id){const{error}=await sb.from(s).delete().eq('id',id);if(error)throw new Error(error.message);}
+/* ---- Login (Supabase Auth) ---- */
+function ensureAuth(){return new Promise(async(resolve)=>{
+  try{const{data:{session}}=await sb.auth.getSession();if(session){addLogoutBtn();return resolve(true);}}catch(e){}
+  const ov=document.createElement('div');ov.id='loginOverlay';
+  ov.style.cssText='position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px';
+  ov.innerHTML=`<form id="loginForm" style="width:100%;max-width:360px;background:var(--panel);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:26px 24px">
+    <div style="text-align:center"><div style="font-family:var(--serif);font-size:22px;font-weight:600;color:var(--brand-d)">Panel NC</div><div class="hint" style="margin-top:4px">Medicina estética · acceso privado</div></div>
+    <div class="fgroup" style="margin-top:18px"><label>Email</label><input id="lg_email" type="email" autocomplete="username" required></div>
+    <div class="fgroup"><label>Contraseña</label><input id="lg_pass" type="password" autocomplete="current-password" required></div>
+    <div id="lg_err" class="hint" style="color:var(--danger);min-height:16px;margin-bottom:8px"></div>
+    <button class="btn" type="submit" style="width:100%;justify-content:center">Ingresar</button>
+  </form>`;
+  document.body.appendChild(ov);
+  ov.querySelector('#loginForm').addEventListener('submit',async e=>{e.preventDefault();const f=e.currentTarget,btn=f.querySelector('button'),err=f.querySelector('#lg_err');
+    btn.disabled=true;btn.textContent='Ingresando…';err.textContent='';
+    const{error}=await sb.auth.signInWithPassword({email:f.querySelector('#lg_email').value.trim(),password:f.querySelector('#lg_pass').value});
+    if(error){err.textContent='Email o contraseña incorrectos.';btn.disabled=false;btn.textContent='Ingresar';return;}
+    ov.remove();addLogoutBtn();resolve(true);
+  });
+});}
+function addLogoutBtn(){const bar=document.querySelector('.side-ico');if(bar&&!bar.querySelector('[data-logout]')){const b=document.createElement('span');b.setAttribute('data-logout','');b.title='Cerrar sesión';b.style.cursor='pointer';b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>';b.onclick=async()=>{try{await sb.auth.signOut();}catch(e){}location.reload();};bar.appendChild(b);}}
 
 let patients=[],currentPatientId=null,currentTxId=null,photoSeg='antes';
 let consents=[],settings={id:'app'};
@@ -1299,7 +1317,8 @@ window.addEventListener('unhandledrejection',e=>{const m=(e.reason&&e.reason.mes
 window.addEventListener('error',e=>{console.error('window.error',e.error||e.message);toast('⚠️ '+(e.message||'error'));});
 (async function(){
   try{await initDB();}
-  catch(e){console.error('initDB',e);alert('Este navegador está bloqueando el almacenamiento local, que el panel necesita para guardar datos.\n\nSolución: usá una ventana NORMAL de Chrome (no incógnito) y permití los datos de sitios para nc-historia-clinica.netlify.app.');return;}
+  catch(e){console.error('initDB',e);alert('No se pudo iniciar la conexión con la base en la nube.\n\nRevisá tu conexión a internet y recargá la página.');return;}
+  const ok=await ensureAuth();if(!ok)return;
   patients=await dbGetAll('patients');
   patients.forEach(p=>{if(!p.consultas){p.consultas=(p.treatments||[]).map(t=>({...t,tipo:t.tipo||'facial'}));}});
   consents=await dbGetAll('consents');settings=(await dbGet('settings','app'))||{id:'app'};turnos=await dbGetAll('turnos');
